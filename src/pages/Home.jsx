@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { theme } from '../theme'
 
@@ -8,6 +9,7 @@ export default function Home() {
     <div style={styles.page}>
       <h1 style={styles.title}>You're in.</h1>
       <p style={styles.text}>Logged in as {user?.email}</p>
+      <Link to="/search" style={styles.searchLink}>Search and add titles</Link>
       <button onClick={signOut} style={styles.button}>Log out</button>
     </div>
   )
@@ -17,5 +19,6 @@ const styles = {
   page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, gap: '12px' },
   title: { fontFamily: theme.fonts.display, fontSize: '40px', margin: 0 },
   text: { color: theme.colors.slate, margin: 0 },
+  searchLink: { color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '15px', marginTop: '8px' },
   button: { marginTop: '16px', padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 600, cursor: 'pointer' },
 }

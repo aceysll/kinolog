@@ -1,0 +1,101 @@
+export default async function handler(req, res) {
+  const { q } = req.query
+
+  if (!q || q.trim().length === 0) {
+    return res.status(400).json({ error: 'Missing search query' })
+  }
+
+  try {
+    const [tmdbResults, anilistResults] = await Promise.all([
+      searchTMDB(q),
+      searchAniList(q),
+    ])
+
+    res.status(200).json({
+      results: [...tmdbResults, ...anilistResults],
+    })
+  } catch (err) {
+    res.status(500).json({ error: 'Search failed', details: err.message })
+  }
+}
+
+async function searchTMDB(query) {
+  const response = await fetch(
+    `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+        Accept: 'application/json',
+      },
+    }
+  )
+
+  if (!response.ok) return []
+
+  const data = await response.json()
+
+  return data.results
+    .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
+    .slice(0, 10)
+    .map((item) => ({
+      source: 'tmdb',
+      external_id: String(item.id),
+      media_type: item.media_type,
+      title: item.media_type === 'movie' ? item.title : item.name,
+      year:
+        (item.media_type === 'movie' ? item.release_date : item.first_air_date)?.slice(0, 4) ||
+        null,
+      poster_url: item.poster_path
+        ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
+        : null,
+    }))
+}
+
+async function searchAniList(query) {
+  const graphqlQuery = `
+    query ($search: String) {
+      Page(page: 1, perPage: 10) {
+        media(search: $search, type: ANIME) {
+          id
+          title {
+            romaji
+            english
+          }
+          format
+          startDate {
+            year
+          }
+          coverImage {
+            medium
+          }
+        }
+      }
+    }
+  `
+
+  const response = await fetch('https://graphql.anilist.co', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      query: graphqlQuery,
+      variables: { search: query },
+    }),
+  })
+
+  if (!response.ok) return []
+
+  const data = await response.json()
+  const media = data?.data?.Page?.media || []
+
+  return media.map((item) => ({
+    source: 'anilist',
+    external_id: String(item.id),
+    media_type: 'anime',
+    title: item.title.english || item.title.romaji,
+    year: item.startDate?.year || null,
+    poster_url: item.coverImage?.medium || null,
+  }))
+}
