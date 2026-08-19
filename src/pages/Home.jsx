@@ -44,6 +44,12 @@ export default function Home() {
       </div>
 
       <div style={styles.body}>
+        {watchedCount === 0 && (
+          <Link to="/onboarding" style={styles.onboardingBanner}>
+            New here? Pick a few favorites to get started →
+          </Link>
+        )}
+
         <div style={styles.statusRow}>
           <p style={styles.greeting}>{user?.email}</p>
           <p style={styles.count}>
@@ -86,6 +92,7 @@ const styles = {
   logo: { fontFamily: theme.fonts.display, fontSize: '44px', margin: 0, letterSpacing: '1px' },
   tagline: { color: theme.colors.slate, fontSize: '14px', margin: 0 },
   body: { maxWidth: '480px', margin: '0 auto', padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: '20px' },
+  onboardingBanner: { display: 'block', textAlign: 'center', padding: '12px', borderRadius: '10px', backgroundColor: theme.colors.cardBg, color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}` },
   statusRow: { display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: theme.colors.slate },
   greeting: { margin: 0 },
   count: { margin: 0, color: theme.colors.projectorAmber },
