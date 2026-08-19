@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
@@ -12,13 +12,24 @@ export default function Search() {
   const [addedIds, setAddedIds] = useState(new Set())
   const { user } = useAuth()
 
-  async function handleSearch(e) {
-    e.preventDefault()
-    if (!query.trim()) return
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      runSearch(query)
+    }, 400)
+
+    return () => clearTimeout(timeout)
+  }, [query])
+
+  async function runSearch(q) {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Search failed')
       setResults(data.results)
@@ -47,23 +58,20 @@ export default function Search() {
   return (
     <div style={styles.page}>
       <div style={styles.header}>
-        <Link to="/" style={styles.link}> Back</Link>
+        <Link to="/" style={styles.link}>← Back</Link>
         <h1 style={styles.title}>Search</h1>
       </div>
 
-      <form onSubmit={handleSearch} style={styles.form}>
-        <input
-          type="text"
-          placeholder="Search movies, shows, anime..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? 'Searching...' : 'Search'}
-        </button>
-      </form>
+      <input
+        type="text"
+        placeholder="Search movies, shows, anime..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={styles.input}
+        autoFocus
+      />
 
+      {loading && <p style={styles.status}>Searching...</p>}
       {error && <p style={styles.error}>{error}</p>}
 
       <div style={styles.grid}>
@@ -78,7 +86,7 @@ export default function Search() {
                 <div style={styles.posterFallback}>No image</div>
               )}
               <p style={styles.cardTitle}>{item.title}</p>
-              <p style={styles.cardMeta}>{item.year || ''}  {item.media_type}</p>
+              <p style={styles.cardMeta}>{item.year || '—'} · {item.media_type}</p>
               <button
                 onClick={() => handleAdd(item)}
                 disabled={added}
@@ -99,9 +107,8 @@ const styles = {
   header: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' },
   link: { color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px' },
   title: { fontFamily: theme.fonts.display, fontSize: '28px', margin: 0 },
-  form: { display: 'flex', gap: '8px', marginBottom: '24px' },
-  input: { flex: 1, padding: '12px 14px', borderRadius: '8px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'transparent', color: theme.colors.screenGlow, fontSize: '15px' },
-  button: { padding: '12px 20px', borderRadius: '8px', border: 'none', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 600, cursor: 'pointer' },
+  input: { width: '100%', boxSizing: 'border-box', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.screenGlow, fontSize: '16px', marginBottom: '16px' },
+  status: { color: theme.colors.slate, fontSize: '13px', marginBottom: '12px' },
   error: { color: theme.colors.velvetRed, marginBottom: '16px' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' },
   card: { backgroundColor: theme.colors.cardBg, borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' },

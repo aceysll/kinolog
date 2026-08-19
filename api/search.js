@@ -36,7 +36,7 @@ async function searchTMDB(query) {
 
   return data.results
     .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
-    .slice(0, 10)
+    .slice(0, 12)
     .map((item) => ({
       source: 'tmdb',
       external_id: String(item.id),
@@ -47,6 +47,9 @@ async function searchTMDB(query) {
         null,
       poster_url: item.poster_path
         ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
+        : null,
+      backdrop_url: item.backdrop_path
+        ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
         : null,
     }))
 }
@@ -68,6 +71,7 @@ async function searchAniList(query) {
           coverImage {
             medium
           }
+          bannerImage
         }
       }
     }
@@ -97,5 +101,6 @@ async function searchAniList(query) {
     title: item.title.english || item.title.romaji,
     year: item.startDate?.year || null,
     poster_url: item.coverImage?.medium || null,
+    backdrop_url: item.bannerImage || null,
   }))
 }

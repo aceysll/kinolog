@@ -6,6 +6,7 @@ export const theme = {
     screenGlow: '#F2EFE9',
     slate: '#566670',
     cardBg: '#1C1E24',
+    animeTeal: '#5C8374',
   },
   fonts: {
     display: "'Instrument Serif', serif",
