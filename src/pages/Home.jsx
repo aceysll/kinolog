@@ -2,18 +2,20 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
+import { TitleCard } from '../components/TitleCard'
 import { theme } from '../theme'
 
 export default function Home() {
-  const { user, signOut } = useAuth()
-  const [backdrops, setBackdrops] = useState([])
+  const { user } = useAuth()
+  const [trending, setTrending] = useState([])
+  const [addedIds, setAddedIds] = useState(new Set())
   const [watchedCount, setWatchedCount] = useState(null)
 
   useEffect(() => {
     fetch('/api/trending')
       .then((res) => res.json())
-      .then((data) => setBackdrops(data.items || []))
-      .catch(() => setBackdrops([]))
+      .then((data) => setTrending(data.items || []))
+      .catch(() => setTrending([]))
 
     supabase
       .from('watched_entries')
@@ -22,6 +24,21 @@ export default function Home() {
       .then(({ count }) => setWatchedCount(count ?? 0))
   }, [user.id])
 
+  async function handleAdd(item) {
+    const key = `${item.source}-${item.external_id}`
+    const { error } = await supabase.from('watched_entries').insert({
+      user_id: user.id,
+      media_type: item.media_type,
+      source: item.source,
+      external_id: item.external_id,
+      title: item.title,
+      watched_date: new Date().toISOString().slice(0, 10),
+    })
+    if (!error) setAddedIds((prev) => new Set(prev).add(key))
+  }
+
+  const backdrops = trending.filter((t) => t.backdrop_url).slice(0, 6)
+
   return (
     <div style={styles.page}>
       <div style={styles.hero}>
@@ -29,14 +46,14 @@ export default function Home() {
           {backdrops.map((item, i) => (
             <div
               key={i}
-              style={{
-                ...styles.backdropTile,
-                backgroundImage: `url(${item.backdrop_url})`,
-              }}
+              style={{ ...styles.backdropTile, backgroundImage: `url(${item.backdrop_url})` }}
             />
           ))}
         </div>
         <div style={styles.heroOverlay} />
+        <div style={styles.heroTop}>
+          <Link to="/profile" style={styles.profileLink}>Profile</Link>
+        </div>
         <div style={styles.heroContent}>
           <h1 style={styles.logo}>Kinolog</h1>
           <p style={styles.tagline}>Your cinema, counted.</p>
@@ -50,33 +67,25 @@ export default function Home() {
           </Link>
         )}
 
-        <div style={styles.statusRow}>
-          <p style={styles.greeting}>{user?.email}</p>
-          <p style={styles.count}>
-            {watchedCount === null ? '...' : watchedCount} titles logged
-          </p>
-        </div>
-
-        <Link to="/search" style={styles.primaryCta}>
-          Search &amp; Add Titles
+        <Link to="/search" style={styles.searchBar}>
+          Search movies, shows, anime...
         </Link>
 
-        <div style={styles.navRow}>
-          <div style={styles.navCard}>
-            <p style={styles.navTitle}>My Watched List</p>
-            <p style={styles.navSubtitle}>Coming soon</p>
-          </div>
-          <div style={styles.navCard}>
-            <p style={styles.navTitle}>Stats</p>
-            <p style={styles.navSubtitle}>Unlocks once you log titles</p>
-          </div>
-          <div style={styles.navCard}>
-            <p style={styles.navTitle}>Lists</p>
-            <p style={styles.navSubtitle}>Coming soon</p>
-          </div>
-        </div>
+        <h2 style={styles.sectionTitle}>Trending This Week</h2>
 
-        <button onClick={signOut} style={styles.signOut}>Log out</button>
+        <div style={styles.grid}>
+          {trending.map((item) => {
+            const key = `${item.source}-${item.external_id}`
+            return (
+              <TitleCard
+                key={key}
+                item={item}
+                added={addedIds.has(key)}
+                onAdd={handleAdd}
+              />
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -84,22 +93,18 @@ export default function Home() {
 
 const styles = {
   page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow },
-  hero: { position: 'relative', height: '260px', overflow: 'hidden' },
-  backdropGrid: { position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(2, 1fr)' },
+  hero: { position: 'relative', height: '220px', overflow: 'hidden' },
+  backdropGrid: { position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)' },
   backdropTile: { backgroundSize: 'cover', backgroundPosition: 'center', filter: 'grayscale(20%)' },
-  heroOverlay: { position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.75) 0%, rgba(22,23,28,0.95) 100%)' },
-  heroContent: { position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' },
-  logo: { fontFamily: theme.fonts.display, fontSize: '44px', margin: 0, letterSpacing: '1px' },
-  tagline: { color: theme.colors.slate, fontSize: '14px', margin: 0 },
-  body: { maxWidth: '480px', margin: '0 auto', padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: '20px' },
-  onboardingBanner: { display: 'block', textAlign: 'center', padding: '12px', borderRadius: '10px', backgroundColor: theme.colors.cardBg, color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}` },
-  statusRow: { display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: theme.colors.slate },
-  greeting: { margin: 0 },
-  count: { margin: 0, color: theme.colors.projectorAmber },
-  primaryCta: { textAlign: 'center', padding: '16px', borderRadius: '10px', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 700, textDecoration: 'none', fontSize: '16px' },
-  navRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' },
-  navCard: { backgroundColor: theme.colors.cardBg, borderRadius: '10px', padding: '14px 10px', textAlign: 'center' },
-  navTitle: { fontSize: '13px', fontWeight: 600, margin: '0 0 4px 0' },
-  navSubtitle: { fontSize: '11px', color: theme.colors.slate, margin: 0 },
-  signOut: { alignSelf: 'center', marginTop: '8px', padding: '8px 18px', borderRadius: '8px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'transparent', color: theme.colors.slate, fontSize: '13px', cursor: 'pointer' },
+  heroOverlay: { position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.7) 0%, rgba(22,23,28,0.97) 100%)' },
+  heroTop: { position: 'relative', display: 'flex', justifyContent: 'flex-end', padding: '16px 20px' },
+  profileLink: { color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '13px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}`, padding: '6px 12px', borderRadius: '20px' },
+  heroContent: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '10px' },
+  logo: { fontFamily: theme.fonts.display, fontSize: '38px', margin: 0 },
+  tagline: { color: theme.colors.slate, fontSize: '13px', margin: 0 },
+  body: { maxWidth: '900px', margin: '0 auto', padding: '20px 20px 40px 20px' },
+  onboardingBanner: { display: 'block', textAlign: 'center', padding: '12px', borderRadius: '10px', backgroundColor: theme.colors.cardBg, color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}`, marginBottom: '16px' },
+  searchBar: { display: 'block', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.slate, textDecoration: 'none', fontSize: '15px', marginBottom: '24px' },
+  sectionTitle: { fontFamily: theme.fonts.display, fontSize: '22px', margin: '0 0 12px 0' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' },
 }

@@ -2,26 +2,31 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
+import { TitleCard } from '../components/TitleCard'
 import { theme } from '../theme'
 
 export default function Search() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
+  const [trending, setTrending] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [addedIds, setAddedIds] = useState(new Set())
   const { user } = useAuth()
 
   useEffect(() => {
+    fetch('/api/trending')
+      .then((res) => res.json())
+      .then((data) => setTrending(data.items || []))
+      .catch(() => setTrending([]))
+  }, [])
+
+  useEffect(() => {
     if (!query.trim()) {
       setResults([])
       return
     }
-
-    const timeout = setTimeout(() => {
-      runSearch(query)
-    }, 400)
-
+    const timeout = setTimeout(() => runSearch(query), 400)
     return () => clearTimeout(timeout)
   }, [query])
 
@@ -50,72 +55,67 @@ export default function Search() {
       title: item.title,
       watched_date: new Date().toISOString().slice(0, 10),
     })
-    if (!error) {
-      setAddedIds((prev) => new Set(prev).add(key))
-    }
+    if (!error) setAddedIds((prev) => new Set(prev).add(key))
   }
+
+  const showingResults = query.trim().length > 0
+  const displayItems = showingResults ? results : trending
+  const topBackdrop = displayItems.find((r) => r.backdrop_url)?.backdrop_url
 
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
-        <Link to="/" style={styles.link}>← Back</Link>
-        <h1 style={styles.title}>Search</h1>
-      </div>
-
-      <input
-        type="text"
-        placeholder="Search movies, shows, anime..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={styles.input}
-        autoFocus
+      <div
+        style={{
+          ...styles.ambientBackdrop,
+          backgroundImage: topBackdrop ? `url(${topBackdrop})` : 'none',
+          opacity: topBackdrop ? 1 : 0,
+        }}
       />
+      <div style={styles.ambientOverlay} />
 
-      {loading && <p style={styles.status}>Searching...</p>}
-      {error && <p style={styles.error}>{error}</p>}
+      <div style={styles.content}>
+        <Link to="/" style={styles.link}>← Back</Link>
+        <h1 style={styles.title}>{showingResults ? 'Results' : 'Trending Now'}</h1>
 
-      <div style={styles.grid}>
-        {results.map((item) => {
-          const key = `${item.source}-${item.external_id}`
-          const added = addedIds.has(key)
-          return (
-            <div key={key} style={styles.card}>
-              {item.poster_url ? (
-                <img src={item.poster_url} alt={item.title} style={styles.poster} />
-              ) : (
-                <div style={styles.posterFallback}>No image</div>
-              )}
-              <p style={styles.cardTitle}>{item.title}</p>
-              <p style={styles.cardMeta}>{item.year || '—'} · {item.media_type}</p>
-              <button
-                onClick={() => handleAdd(item)}
-                disabled={added}
-                style={added ? styles.addedButton : styles.addButton}
-              >
-                {added ? 'Added' : 'Add to watched'}
-              </button>
-            </div>
-          )
-        })}
+        <input
+          type="text"
+          placeholder="A title, a director, a mood..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={styles.input}
+          autoFocus
+        />
+
+        {loading && <p style={styles.status}>Searching...</p>}
+        {error && <p style={styles.error}>{error}</p>}
+
+        <div style={styles.grid}>
+          {displayItems.map((item) => {
+            const key = `${item.source}-${item.external_id}`
+            return (
+              <TitleCard
+                key={key}
+                item={item}
+                added={addedIds.has(key)}
+                onAdd={handleAdd}
+              />
+            )
+          })}
+        </div>
       </div>
     </div>
   )
 }
 
 const styles = {
-  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, padding: '24px' },
-  header: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' },
+  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, position: 'relative', overflow: 'hidden' },
+  ambientBackdrop: { position: 'fixed', inset: 0, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(24px) brightness(0.4)', transition: 'opacity 0.6s ease', zIndex: 0 },
+  ambientOverlay: { position: 'fixed', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.85) 0%, rgba(22,23,28,0.98) 60%)', zIndex: 0 },
+  content: { position: 'relative', zIndex: 1, padding: '24px', maxWidth: '900px', margin: '0 auto' },
   link: { color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px' },
-  title: { fontFamily: theme.fonts.display, fontSize: '28px', margin: 0 },
-  input: { width: '100%', boxSizing: 'border-box', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.screenGlow, fontSize: '16px', marginBottom: '16px' },
+  title: { fontFamily: theme.fonts.display, fontSize: '32px', margin: '8px 0 20px 0' },
+  input: { width: '100%', boxSizing: 'border-box', padding: '16px 18px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'rgba(28,30,36,0.85)', color: theme.colors.screenGlow, fontSize: '17px', marginBottom: '20px' },
   status: { color: theme.colors.slate, fontSize: '13px', marginBottom: '12px' },
   error: { color: theme.colors.velvetRed, marginBottom: '16px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' },
-  card: { backgroundColor: theme.colors.cardBg, borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' },
-  poster: { width: '100%', borderRadius: '6px', aspectRatio: '2/3', objectFit: 'cover' },
-  posterFallback: { width: '100%', aspectRatio: '2/3', borderRadius: '6px', backgroundColor: theme.colors.slate, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: theme.colors.screenGlow },
-  cardTitle: { fontSize: '13px', fontWeight: 600, margin: 0, lineHeight: 1.3 },
-  cardMeta: { fontSize: '11px', color: theme.colors.slate, margin: 0, textTransform: 'capitalize' },
-  addButton: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 600, fontSize: '12px', cursor: 'pointer' },
-  addedButton: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: theme.colors.slate, color: theme.colors.screenGlow, fontWeight: 600, fontSize: '12px', cursor: 'default' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '18px' },
 }

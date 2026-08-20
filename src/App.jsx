@@ -6,6 +6,7 @@ import Signup from './pages/Signup'
 import Home from './pages/Home'
 import Search from './pages/Search'
 import Onboarding from './pages/Onboarding'
+import Profile from './pages/Profile'
 
 export default function App() {
   return (
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Onboarding />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />
