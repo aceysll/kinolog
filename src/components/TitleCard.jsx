@@ -1,6 +1,6 @@
 import { theme } from '../theme'
 
-const BADGE_COLORS = {
+const BADGE_DOT = {
   movie: theme.colors.projectorAmber,
   tv: theme.colors.velvetRed,
   anime: theme.colors.animeTeal,
@@ -15,24 +15,24 @@ export function TitleCard({ item, added, onAdd }) {
         ) : (
           <div style={styles.posterFallback}>No image</div>
         )}
-        <span
-          style={{
-            ...styles.badge,
-            backgroundColor: BADGE_COLORS[item.media_type] || theme.colors.slate,
-          }}
-        >
+        <span style={styles.badge}>
+          <span style={{ ...styles.badgeDot, backgroundColor: BADGE_DOT[item.media_type] || theme.colors.slate }} />
           {item.media_type}
         </span>
       </div>
       <p style={styles.cardTitle}>{item.title}</p>
       <p style={styles.cardMeta}>{item.year || '—'}</p>
-      <button
-        onClick={() => onAdd(item)}
-        disabled={added}
-        style={added ? styles.addedButton : styles.addButton}
-      >
-        {added ? 'Added' : 'Add to watched'}
-      </button>
+      {item.upcoming ? (
+        <div style={styles.upcomingLabel}>Not released yet</div>
+      ) : (
+        <button
+          onClick={() => onAdd(item)}
+          disabled={added}
+          style={added ? styles.addedButton : styles.addButton}
+        >
+          {added ? 'Added' : 'Add to watched'}
+        </button>
+      )}
     </div>
   )
 }
@@ -42,9 +42,11 @@ const styles = {
   posterWrap: { position: 'relative' },
   poster: { width: '100%', borderRadius: '6px', aspectRatio: '2/3', objectFit: 'cover', display: 'block' },
   posterFallback: { width: '100%', aspectRatio: '2/3', borderRadius: '6px', backgroundColor: theme.colors.slate, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: theme.colors.screenGlow },
-  badge: { position: 'absolute', top: '6px', left: '6px', fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', color: theme.colors.charcoal, textTransform: 'uppercase', letterSpacing: '0.5px' },
+  badge: { position: 'absolute', top: '6px', left: '6px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', fontWeight: 600, padding: '4px 8px', borderRadius: '20px', color: theme.colors.screenGlow, textTransform: 'uppercase', letterSpacing: '0.5px', backgroundColor: 'rgba(22,23,28,0.7)', backdropFilter: 'blur(6px)', border: '1px solid rgba(242,239,233,0.15)' },
+  badgeDot: { width: '6px', height: '6px', borderRadius: '50%', display: 'inline-block' },
   cardTitle: { fontSize: '13px', fontWeight: 600, margin: 0, lineHeight: 1.3 },
   cardMeta: { fontSize: '11px', color: theme.colors.slate, margin: 0 },
   addButton: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 600, fontSize: '12px', cursor: 'pointer' },
   addedButton: { padding: '8px', borderRadius: '6px', border: 'none', backgroundColor: theme.colors.slate, color: theme.colors.screenGlow, fontWeight: 600, fontSize: '12px', cursor: 'default' },
+  upcomingLabel: { padding: '8px', borderRadius: '6px', textAlign: 'center', fontSize: '11px', color: theme.colors.slate, border: `1px dashed ${theme.colors.slate}` },
 }

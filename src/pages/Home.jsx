@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { TitleCard } from '../components/TitleCard'
+import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
 
 export default function Home() {
@@ -51,9 +52,6 @@ export default function Home() {
           ))}
         </div>
         <div style={styles.heroOverlay} />
-        <div style={styles.heroTop}>
-          <Link to="/profile" style={styles.profileLink}>Profile</Link>
-        </div>
         <div style={styles.heroContent}>
           <h1 style={styles.logo}>Kinolog</h1>
           <p style={styles.tagline}>Your cinema, counted.</p>
@@ -87,19 +85,19 @@ export default function Home() {
           })}
         </div>
       </div>
+
+      <BottomNav />
     </div>
   )
 }
 
 const styles = {
-  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow },
+  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, paddingBottom: '90px' },
   hero: { position: 'relative', height: '220px', overflow: 'hidden' },
   backdropGrid: { position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)' },
   backdropTile: { backgroundSize: 'cover', backgroundPosition: 'center', filter: 'grayscale(20%)' },
   heroOverlay: { position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.7) 0%, rgba(22,23,28,0.97) 100%)' },
-  heroTop: { position: 'relative', display: 'flex', justifyContent: 'flex-end', padding: '16px 20px' },
-  profileLink: { color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '13px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}`, padding: '6px 12px', borderRadius: '20px' },
-  heroContent: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '10px' },
+  heroContent: { position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' },
   logo: { fontFamily: theme.fonts.display, fontSize: '38px', margin: 0 },
   tagline: { color: theme.colors.slate, fontSize: '13px', margin: 0 },
   body: { maxWidth: '900px', margin: '0 auto', padding: '20px 20px 40px 20px' },

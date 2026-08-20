@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { TitleCard } from '../components/TitleCard'
+import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
 
 export default function Search() {
@@ -74,7 +74,6 @@ export default function Search() {
       <div style={styles.ambientOverlay} />
 
       <div style={styles.content}>
-        <Link to="/" style={styles.link}>← Back</Link>
         <h1 style={styles.title}>{showingResults ? 'Results' : 'Trending Now'}</h1>
 
         <input
@@ -103,17 +102,18 @@ export default function Search() {
           })}
         </div>
       </div>
+
+      <BottomNav />
     </div>
   )
 }
 
 const styles = {
-  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, position: 'relative', overflow: 'hidden' },
+  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, position: 'relative', overflow: 'hidden', paddingBottom: '90px' },
   ambientBackdrop: { position: 'fixed', inset: 0, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(24px) brightness(0.4)', transition: 'opacity 0.6s ease', zIndex: 0 },
   ambientOverlay: { position: 'fixed', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.85) 0%, rgba(22,23,28,0.98) 60%)', zIndex: 0 },
   content: { position: 'relative', zIndex: 1, padding: '24px', maxWidth: '900px', margin: '0 auto' },
-  link: { color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px' },
-  title: { fontFamily: theme.fonts.display, fontSize: '32px', margin: '8px 0 20px 0' },
+  title: { fontFamily: theme.fonts.display, fontSize: '32px', margin: '0 0 20px 0' },
   input: { width: '100%', boxSizing: 'border-box', padding: '16px 18px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'rgba(28,30,36,0.85)', color: theme.colors.screenGlow, fontSize: '17px', marginBottom: '20px' },
   status: { color: theme.colors.slate, fontSize: '13px', marginBottom: '12px' },
   error: { color: theme.colors.velvetRed, marginBottom: '16px' },

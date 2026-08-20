@@ -22,25 +22,28 @@ async function fetchTMDBTrending() {
   if (!response.ok) return []
 
   const data = await response.json()
+  const now = new Date()
 
   return data.results
     .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
     .slice(0, 14)
-    .map((item) => ({
-      source: 'tmdb',
-      external_id: String(item.id),
-      media_type: item.media_type,
-      title: item.media_type === 'movie' ? item.title : item.name,
-      year:
-        (item.media_type === 'movie' ? item.release_date : item.first_air_date)?.slice(0, 4) ||
-        null,
-      poster_url: item.poster_path
-        ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
-        : null,
-      backdrop_url: item.backdrop_path
-        ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
-        : null,
-    }))
+    .map((item) => {
+      const releaseDateRaw = item.media_type === 'movie' ? item.release_date : item.first_air_date
+      return {
+        source: 'tmdb',
+        external_id: String(item.id),
+        media_type: item.media_type,
+        title: item.media_type === 'movie' ? item.title : item.name,
+        year: releaseDateRaw?.slice(0, 4) || null,
+        poster_url: item.poster_path
+          ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
+          : null,
+        backdrop_url: item.backdrop_path
+          ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
+          : null,
+        upcoming: releaseDateRaw ? new Date(releaseDateRaw) > now : false,
+      }
+    })
 }
 
 async function fetchAniListTrending() {
@@ -54,6 +57,7 @@ async function fetchAniListTrending() {
             english
           }
           format
+          status
           startDate {
             year
           }
@@ -88,5 +92,6 @@ async function fetchAniListTrending() {
     year: item.startDate?.year || null,
     poster_url: item.coverImage?.medium || null,
     backdrop_url: item.bannerImage || null,
+    upcoming: item.status === 'NOT_YET_RELEASED',
   }))
 }
