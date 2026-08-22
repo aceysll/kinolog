@@ -2,21 +2,22 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
-import { TitleCard } from '../components/TitleCard'
 import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
 
 export default function Home() {
   const { user } = useAuth()
-  const [trending, setTrending] = useState([])
-  const [addedIds, setAddedIds] = useState(new Set())
+  const [backdrops, setBackdrops] = useState([])
   const [watchedCount, setWatchedCount] = useState(null)
 
   useEffect(() => {
     fetch('/api/trending')
       .then((res) => res.json())
-      .then((data) => setTrending(data.items || []))
-      .catch(() => setTrending([]))
+      .then((data) => {
+        const items = data.items || []
+        setBackdrops(items.filter((t) => t.backdrop_url).slice(0, 6))
+      })
+      .catch(() => setBackdrops([]))
 
     supabase
       .from('watched_entries')
@@ -24,21 +25,6 @@ export default function Home() {
       .eq('user_id', user.id)
       .then(({ count }) => setWatchedCount(count ?? 0))
   }, [user.id])
-
-  async function handleAdd(item) {
-    const key = `${item.source}-${item.external_id}`
-    const { error } = await supabase.from('watched_entries').insert({
-      user_id: user.id,
-      media_type: item.media_type,
-      source: item.source,
-      external_id: item.external_id,
-      title: item.title,
-      watched_date: new Date().toISOString().slice(0, 10),
-    })
-    if (!error) setAddedIds((prev) => new Set(prev).add(key))
-  }
-
-  const backdrops = trending.filter((t) => t.backdrop_url).slice(0, 6)
 
   return (
     <div style={styles.page}>
@@ -65,25 +51,9 @@ export default function Home() {
           </Link>
         )}
 
-        <Link to="/search" style={styles.searchBar}>
-          Search movies, shows, anime...
+        <Link to="/search" style={styles.exploreLink}>
+          Explore trending movies, shows, and anime →
         </Link>
-
-        <h2 style={styles.sectionTitle}>Trending This Week</h2>
-
-        <div style={styles.grid}>
-          {trending.map((item) => {
-            const key = `${item.source}-${item.external_id}`
-            return (
-              <TitleCard
-                key={key}
-                item={item}
-                added={addedIds.has(key)}
-                onAdd={handleAdd}
-              />
-            )
-          })}
-        </div>
       </div>
 
       <BottomNav />
@@ -102,7 +72,5 @@ const styles = {
   tagline: { color: theme.colors.slate, fontSize: '13px', margin: 0 },
   body: { maxWidth: '900px', margin: '0 auto', padding: '20px 20px 40px 20px' },
   onboardingBanner: { display: 'block', textAlign: 'center', padding: '12px', borderRadius: '10px', backgroundColor: theme.colors.cardBg, color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}`, marginBottom: '16px' },
-  searchBar: { display: 'block', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.slate, textDecoration: 'none', fontSize: '15px', marginBottom: '24px' },
-  sectionTitle: { fontFamily: theme.fonts.display, fontSize: '22px', margin: '0 0 12px 0' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' },
+  exploreLink: { display: 'block', textAlign: 'center', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.screenGlow, textDecoration: 'none', fontSize: '15px', fontWeight: 600 },
 }
