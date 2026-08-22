@@ -19,6 +19,13 @@ export default async function handler(req, res) {
   }
 }
 
+function isLikelyAnime(item) {
+  if (item.media_type !== 'tv') return false
+  const genreIds = item.genre_ids || []
+  const originCountry = item.origin_country || []
+  return genreIds.includes(16) && originCountry.includes('JP')
+}
+
 async function searchTMDB(query) {
   const response = await fetch(
     `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}`,
@@ -37,6 +44,7 @@ async function searchTMDB(query) {
 
   return data.results
     .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
+    .filter((item) => !isLikelyAnime(item))
     .slice(0, 12)
     .map((item) => {
       const releaseDateRaw = item.media_type === 'movie' ? item.release_date : item.first_air_date
