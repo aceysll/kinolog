@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
@@ -48,13 +49,15 @@ export default function Profile() {
 
       <div style={styles.content}>
         <div style={styles.navList}>
-          <div style={styles.navCard}>
-            <FilmIcon />
-            <div>
-              <p style={styles.navTitle}>My Watched List</p>
-              <p style={styles.navSubtitle}>Coming soon</p>
+          <Link to="/watched" style={styles.navLink}>
+            <div style={styles.navCard}>
+              <FilmIcon />
+              <div>
+                <p style={styles.navTitle}>My Watched List</p>
+                <p style={styles.navSubtitle}>See everything you've logged</p>
+              </div>
             </div>
-          </div>
+          </Link>
           <div style={styles.navCard}>
             <BarChartIcon />
             <div>
@@ -86,6 +89,7 @@ const styles = {
   email: { color: theme.colors.slate, fontSize: '13px', margin: 0, wordBreak: 'break-all', textAlign: 'center' },
   content: { maxWidth: '480px', margin: '0 auto', padding: '24px' },
   navList: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' },
+  navLink: { textDecoration: 'none', color: 'inherit' },
   navCard: { backgroundColor: theme.colors.cardBg, borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px' },
   navTitle: { fontSize: '15px', fontWeight: 600, margin: '0 0 2px 0' },
   navSubtitle: { fontSize: '12px', color: theme.colors.slate, margin: 0 },

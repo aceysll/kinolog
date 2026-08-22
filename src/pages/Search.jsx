@@ -53,6 +53,7 @@ export default function Search() {
       source: item.source,
       external_id: item.external_id,
       title: item.title,
+      poster_url: item.poster_url || null,
       watched_date: new Date().toISOString().slice(0, 10),
     })
     if (!error) setAddedIds((prev) => new Set(prev).add(key))
