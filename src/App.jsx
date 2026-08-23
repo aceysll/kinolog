@@ -8,14 +8,15 @@ import Search from './pages/Search'
 import Onboarding from './pages/Onboarding'
 import Profile from './pages/Profile'
 import Watched from './pages/Watched'
+import Stats from './pages/Stats'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
           <Route
             path="/"
             element={
@@ -53,6 +54,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Watched />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute>
+                <Stats />
               </ProtectedRoute>
             }
           />
