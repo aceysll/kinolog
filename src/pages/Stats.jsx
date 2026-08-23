@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import theme from '../theme';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabaseClient';
 import { BottomNav } from '../components/BottomNav';
 
 const Stats = () => {
