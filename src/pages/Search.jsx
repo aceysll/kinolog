@@ -47,6 +47,7 @@ export default function Search() {
 
   async function handleAdd(item) {
     const key = `${item.source}-${item.external_id}`
+    const yearValue = Number(item.year)
     const { error } = await supabase.from('watched_entries').insert({
       user_id: user.id,
       media_type: item.media_type,
@@ -54,6 +55,7 @@ export default function Search() {
       external_id: item.external_id,
       title: item.title,
       poster_url: item.poster_url || null,
+      year: Number.isFinite(yearValue) ? yearValue : null,
       watched_date: new Date().toISOString().slice(0, 10),
     })
     if (!error) setAddedIds((prev) => new Set(prev).add(key))
