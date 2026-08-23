@@ -61,16 +61,20 @@ export default function Onboarding() {
 
   async function handleFinish() {
     setSaving(true)
-    const rows = selected.map((item) => ({
-      user_id: user.id,
-      media_type: item.media_type,
-      source: item.source,
-      external_id: item.external_id,
-      title: item.title,
-      poster_url: item.poster_url || null,
-      watched_date: new Date().toISOString().slice(0, 10),
-      rating: 10,
-    }))
+    const rows = selected.map((item) => {
+      const yearValue = Number(item.year)
+      return {
+        user_id: user.id,
+        media_type: item.media_type,
+        source: item.source,
+        external_id: item.external_id,
+        title: item.title,
+        poster_url: item.poster_url || null,
+        year: Number.isFinite(yearValue) ? yearValue : null,
+        watched_date: new Date().toISOString().slice(0, 10),
+        rating: 10,
+      }
+    })
     const { error } = await supabase.from('watched_entries').insert(rows)
     setSaving(false)
     if (!error) {
