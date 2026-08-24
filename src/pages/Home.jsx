@@ -66,7 +66,7 @@ export default function Home() {
         <div className="home-hero-overlay" />
         <div className="home-hero-content">
           <h1 className="home-logo">Kinolog</h1>
-          <p className="home-tagline">Your cinema, counted.</p>
+          <p className="home-tagline">Your cinema, counted</p>
         </div>
       </div>
 
@@ -81,14 +81,17 @@ export default function Home() {
 
         {watchedCount > 0 && (
           <>
-            <p className="home-stat-line">
-              You've logged <span className="home-stat-number">{watchedCount}</span> title{watchedCount === 1 ? '' : 's'}
-            </p>
+            <p className="home-stat-eyebrow">Library</p>
+            <div className="home-stat-line">
+              <span className="home-stat-number">{watchedCount}</span>
+              <span className="home-stat-label">title{watchedCount === 1 ? '' : 's'} logged</span>
+            </div>
 
             <div className="home-section-header">
-              <h2 className="home-section-title">Recently Logged</h2>
               <Link to="/watched" className="home-see-all">See all</Link>
             </div>
+            <p className="home-section-eyebrow">Latest</p>
+            <h2 className="home-section-title">Recently Logged</h2>
 
             <div className="home-recent-scroll">
               {recent.map((entry) => (
