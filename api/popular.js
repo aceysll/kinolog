@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
   try {
     const [tmdbItems, anilistItems] = await Promise.all([
-      fetchTMDBPopular(),
-      fetchAniListPopular(),
+      fetchTMDBTopRated(),
+      fetchAniListFavourites(),
     ])
 
     res.status(200).json({ items: [...tmdbItems, ...anilistItems] })
@@ -18,15 +18,15 @@ function isLikelyAnime(item) {
   return genreIds.includes(16) && originCountry.includes('JP')
 }
 
-async function fetchTMDBPopular() {
+async function fetchTMDBTopRated() {
   const headers = {
     Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
     Accept: 'application/json',
   }
 
   const [movieRes, tvRes] = await Promise.all([
-    fetch('https://api.themoviedb.org/3/movie/popular', { headers }),
-    fetch('https://api.themoviedb.org/3/tv/popular', { headers }),
+    fetch('https://api.themoviedb.org/3/movie/top_rated', { headers }),
+    fetch('https://api.themoviedb.org/3/tv/top_rated', { headers }),
   ])
 
   const now = new Date()
@@ -74,11 +74,11 @@ async function fetchTMDBPopular() {
   })
 }
 
-async function fetchAniListPopular() {
+async function fetchAniListFavourites() {
   const query = `
     query {
       Page(page: 1, perPage: 8) {
-        media(sort: POPULARITY_DESC, type: ANIME) {
+        media(sort: FAVOURITES_DESC, type: ANIME) {
           id
           title {
             romaji
