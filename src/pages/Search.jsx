@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { TitleCard } from '../components/TitleCard'
 import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
+import './Search.css'
 
 export default function Search() {
   const [query, setQuery] = useState('')
@@ -65,33 +66,49 @@ export default function Search() {
   const displayItems = showingResults ? results : trending
   const topBackdrop = displayItems.find((r) => r.backdrop_url)?.backdrop_url
 
+  const rootVars = {
+    '--charcoal': theme.colors.charcoal,
+    '--cardBg': theme.colors.cardBg,
+    '--slate': theme.colors.slate,
+    '--amber': theme.colors.projectorAmber,
+    '--velvetRed': theme.colors.velvetRed,
+    '--animeTeal': theme.colors.animeTeal,
+    '--screenGlow': theme.colors.screenGlow,
+    '--font-display': theme.fonts.display,
+    '--font-body': theme.fonts.body,
+    '--font-mono': theme.fonts.mono,
+  }
+
   return (
-    <div style={styles.page}>
+    <div className="search-page" style={rootVars}>
       <div
+        className="search-ambient-backdrop"
         style={{
-          ...styles.ambientBackdrop,
           backgroundImage: topBackdrop ? `url(${topBackdrop})` : 'none',
           opacity: topBackdrop ? 1 : 0,
         }}
       />
-      <div style={styles.ambientOverlay} />
+      <div className="search-ambient-overlay" />
 
-      <div style={styles.content}>
-        <h1 style={styles.title}>{showingResults ? 'Results' : 'Trending Now'}</h1>
+      <div className="search-content">
+        <p className="search-eyebrow">Discover</p>
+        <h1 className="search-title">{showingResults ? 'Results' : 'Trending Now'}</h1>
+
+        <div className="sprocket-divider" />
 
         <input
           type="text"
           placeholder="A title, a director, a mood..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={styles.input}
+          className="search-input"
           autoFocus
         />
 
-        {loading && <p style={styles.status}>Searching...</p>}
-        {error && <p style={styles.error}>{error}</p>}
+        {loading && <p className="search-status">Searching...</p>}
+        {error && <p className="search-error">{error}</p>}
 
-        <div style={styles.grid}>
+        <div className="search-grid">
           {displayItems.map((item) => {
             const key = `${item.source}-${item.external_id}`
             return (
@@ -109,16 +126,4 @@ export default function Search() {
       <BottomNav />
     </div>
   )
-}
-
-const styles = {
-  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, position: 'relative', overflow: 'hidden', paddingBottom: '90px' },
-  ambientBackdrop: { position: 'fixed', inset: 0, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(24px) brightness(0.4)', transition: 'opacity 0.6s ease', zIndex: 0 },
-  ambientOverlay: { position: 'fixed', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.85) 0%, rgba(22,23,28,0.98) 60%)', zIndex: 0 },
-  content: { position: 'relative', zIndex: 1, padding: '24px', maxWidth: '900px', margin: '0 auto' },
-  title: { fontFamily: theme.fonts.display, fontSize: '32px', margin: '0 0 20px 0' },
-  input: { width: '100%', boxSizing: 'border-box', padding: '16px 18px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'rgba(28,30,36,0.85)', color: theme.colors.screenGlow, fontSize: '17px', marginBottom: '20px' },
-  status: { color: theme.colors.slate, fontSize: '13px', marginBottom: '12px' },
-  error: { color: theme.colors.velvetRed, marginBottom: '16px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '18px' },
 }
