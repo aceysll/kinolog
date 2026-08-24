@@ -26,7 +26,7 @@ export default function Onboarding() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetch('/api/trending')
+    fetch('/api/popular')
       .then((res) => res.json())
       .then((data) => setTrending(data.items || []))
       .catch(() => setTrending([]))
@@ -135,7 +135,7 @@ export default function Onboarding() {
         />
 
         <p className="onboarding-section-label">
-          {showingResults ? 'Results' : 'Trending Now'}
+          {showingResults ? 'Results' : 'Popular Picks'}
         </p>
 
         {loading && <p className="onboarding-status">Searching...</p>}
