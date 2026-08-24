@@ -1,0 +1,220 @@
+.watched-page {
+  min-height: 100vh;
+  background-color: var(--charcoal);
+  font-family: var(--font-body);
+  color: var(--screenGlow);
+  padding-bottom: 90px;
+}
+
+.watched-content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 20px 24px 20px;
+}
+
+.watched-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  margin: 0 0 4px 0;
+}
+
+.watched-subtitle {
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin: 0 0 16px 0;
+}
+
+.sprocket-divider {
+  height: 10px;
+  margin: 0 0 20px 0;
+  border-radius: 5px;
+  background-color: var(--slate);
+  background-image: radial-gradient(circle, var(--charcoal) 3px, transparent 3.5px);
+  background-size: 18px 10px;
+  background-position: 0 center;
+  opacity: 0.3;
+}
+
+.watched-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.watched-filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.watched-filter-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--slate);
+  background-color: transparent;
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.watched-filter-btn.active {
+  border: none;
+  background-color: var(--amber);
+  color: var(--charcoal);
+  font-weight: 700;
+}
+
+.watched-sort-select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--slate);
+  background-color: var(--cardBg);
+  color: var(--screenGlow);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  align-self: flex-start;
+}
+
+.watched-status {
+  color: var(--slate);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.watched-error {
+  color: var(--velvetRed);
+  margin-bottom: 16px;
+}
+
+.watched-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.watched-row {
+  display: flex;
+  gap: 14px;
+  background-color: var(--cardBg);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(242,239,233,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  text-align: left;
+}
+
+.watched-poster-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 70px;
+}
+
+.watched-poster {
+  width: 70px;
+  height: 105px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+.watched-poster-fallback {
+  width: 70px;
+  height: 105px;
+  border-radius: 6px;
+  background-color: var(--slate);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--screenGlow);
+  text-align: center;
+}
+
+.watched-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+  color: var(--charcoal);
+  text-transform: uppercase;
+}
+
+.watched-row-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.watched-row-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+  text-align: left;
+}
+
+.watched-row-date {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--slate);
+  margin: 0 0 8px 0;
+  text-align: left;
+}
+
+.watched-stars {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.watched-star {
+  font-size: 16px;
+}
+
+.watched-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.watched-rewatch-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--slate);
+  background-color: transparent;
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+
+.watched-rewatch-btn.active {
+  border: none;
+  background-color: var(--animeTeal);
+  color: var(--charcoal);
+  font-weight: 700;
+}
+
+.watched-remove-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--velvetRed);
+  background-color: transparent;
+  color: var(--velvetRed);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}

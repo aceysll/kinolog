@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
+import './Watched.css'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -27,7 +28,7 @@ function StarRating({ value, onChange }) {
   const stars = [1, 2, 3, 4, 5]
   const filled = Math.round((value || 0) / 2)
   return (
-    <div style={styles.stars}>
+    <div className="watched-stars">
       {stars.map((s) => (
         <span
           key={s}
@@ -35,10 +36,8 @@ function StarRating({ value, onChange }) {
             e.stopPropagation()
             onChange(s * 2)
           }}
-          style={{
-            ...styles.star,
-            color: s <= filled ? theme.colors.projectorAmber : theme.colors.slate,
-          }}
+          className="watched-star"
+          style={{ color: s <= filled ? theme.colors.projectorAmber : theme.colors.slate }}
         >
           ★
         </span>
@@ -98,19 +97,34 @@ export default function Watched() {
     return new Date(b.watched_date) - new Date(a.watched_date)
   })
 
-  return (
-    <div style={styles.page}>
-      <div style={styles.content}>
-        <h1 style={styles.title}>Watched</h1>
-        <p style={styles.subtitle}>{entries.length} title{entries.length === 1 ? '' : 's'} logged</p>
+  const rootVars = {
+    '--charcoal': theme.colors.charcoal,
+    '--cardBg': theme.colors.cardBg,
+    '--slate': theme.colors.slate,
+    '--amber': theme.colors.projectorAmber,
+    '--velvetRed': theme.colors.velvetRed,
+    '--animeTeal': theme.colors.animeTeal,
+    '--screenGlow': theme.colors.screenGlow,
+    '--font-display': theme.fonts.display,
+    '--font-body': theme.fonts.body,
+    '--font-mono': theme.fonts.mono,
+  }
 
-        <div style={styles.controls}>
-          <div style={styles.filterRow}>
+  return (
+    <div className="watched-page" style={rootVars}>
+      <div className="watched-content">
+        <h1 className="watched-title">Watched</h1>
+        <p className="watched-subtitle">{entries.length} title{entries.length === 1 ? '' : 's'} logged</p>
+
+        <div className="sprocket-divider" />
+
+        <div className="watched-controls">
+          <div className="watched-filter-row">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                style={filter === f.key ? styles.filterActive : styles.filterInactive}
+                className={filter === f.key ? 'watched-filter-btn active' : 'watched-filter-btn'}
               >
                 {f.label}
               </button>
@@ -119,7 +133,7 @@ export default function Watched() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            style={styles.sortSelect}
+            className="watched-sort-select"
           >
             {SORTS.map((s) => (
               <option key={s.key} value={s.key}>{s.label}</option>
@@ -127,46 +141,44 @@ export default function Watched() {
           </select>
         </div>
 
-        {loading && <p style={styles.status}>Loading...</p>}
-        {error && <p style={styles.error}>{error}</p>}
+        {loading && <p className="watched-status">Loading...</p>}
+        {error && <p className="watched-error">{error}</p>}
         {!loading && sorted.length === 0 && (
-          <p style={styles.status}>Nothing here yet. Add titles from Search.</p>
+          <p className="watched-status">Nothing here yet. Add titles from Search.</p>
         )}
 
-        <div style={styles.list}>
+        <div className="watched-list">
           {sorted.map((entry) => (
-            <div key={entry.id} style={styles.row}>
-              <div style={styles.posterWrap}>
+            <div key={entry.id} className="watched-row">
+              <div className="watched-poster-wrap">
                 {entry.poster_url ? (
-                  <img src={entry.poster_url} alt={entry.title} style={styles.poster} />
+                  <img src={entry.poster_url} alt={entry.title} className="watched-poster" />
                 ) : (
-                  <div style={styles.posterFallback}>No image</div>
+                  <div className="watched-poster-fallback">No image</div>
                 )}
                 <span
-                  style={{
-                    ...styles.badge,
-                    backgroundColor: BADGE_COLORS[entry.media_type] || theme.colors.slate,
-                  }}
+                  className="watched-badge"
+                  style={{ backgroundColor: BADGE_COLORS[entry.media_type] || theme.colors.slate }}
                 >
                   {entry.media_type}
                 </span>
               </div>
 
-              <div style={styles.rowInfo}>
-                <p style={styles.rowTitle}>{entry.title}</p>
-                <p style={styles.rowDate}>{entry.watched_date}</p>
+              <div className="watched-row-info">
+                <p className="watched-row-title">{entry.title}</p>
+                <p className="watched-row-date">{entry.watched_date}</p>
                 <StarRating
                   value={entry.rating}
                   onChange={(rating) => handleRatingChange(entry.id, rating)}
                 />
-                <div style={styles.rowActions}>
+                <div className="watched-row-actions">
                   <button
                     onClick={() => handleRewatchToggle(entry.id, entry.rewatched)}
-                    style={entry.rewatched ? styles.rewatchActive : styles.rewatchInactive}
+                    className={entry.rewatched ? 'watched-rewatch-btn active' : 'watched-rewatch-btn'}
                   >
                     {entry.rewatched ? 'Rewatched' : 'Mark rewatched'}
                   </button>
-                  <button onClick={() => handleRemove(entry.id)} style={styles.removeButton}>
+                  <button onClick={() => handleRemove(entry.id)} className="watched-remove-btn">
                     Remove
                   </button>
                 </div>
@@ -179,33 +191,4 @@ export default function Watched() {
       <BottomNav />
     </div>
   )
-}
-
-const styles = {
-  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, paddingBottom: '90px' },
-  content: { maxWidth: '700px', margin: '0 auto', padding: '32px 20px 24px 20px' },
-  title: { fontFamily: theme.fonts.display, fontSize: '36px', margin: '0 0 4px 0' },
-  subtitle: { color: theme.colors.slate, fontSize: '13px', margin: '0 0 20px 0' },
-  controls: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' },
-  filterRow: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
-  filterActive: { padding: '8px 14px', borderRadius: '20px', border: 'none', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 700, fontSize: '12px', cursor: 'pointer' },
-  filterInactive: { padding: '8px 14px', borderRadius: '20px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'transparent', color: theme.colors.slate, fontSize: '12px', cursor: 'pointer' },
-  sortSelect: { padding: '10px 12px', borderRadius: '8px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.screenGlow, fontSize: '13px', alignSelf: 'flex-start' },
-  status: { color: theme.colors.slate, fontSize: '13px', marginBottom: '12px' },
-  error: { color: theme.colors.velvetRed, marginBottom: '16px' },
-  list: { display: 'flex', flexDirection: 'column', gap: '12px' },
-  row: { display: 'flex', gap: '14px', backgroundColor: theme.colors.cardBg, borderRadius: '12px', padding: '12px' },
-  posterWrap: { position: 'relative', flexShrink: 0, width: '70px' },
-  poster: { width: '70px', height: '105px', borderRadius: '6px', objectFit: 'cover', display: 'block' },
-  posterFallback: { width: '70px', height: '105px', borderRadius: '6px', backgroundColor: theme.colors.slate, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: theme.colors.screenGlow, textAlign: 'center' },
-  badge: { position: 'absolute', top: '4px', left: '4px', fontSize: '8px', fontWeight: 700, padding: '2px 6px', borderRadius: '20px', color: theme.colors.charcoal, textTransform: 'uppercase' },
-  rowInfo: { flex: 1, minWidth: 0 },
-  rowTitle: { fontSize: '15px', fontWeight: 600, margin: '0 0 2px 0' },
-  rowDate: { fontSize: '11px', color: theme.colors.slate, margin: '0 0 8px 0' },
-  stars: { display: 'flex', gap: '2px', marginBottom: '10px', cursor: 'pointer' },
-  star: { fontSize: '16px' },
-  rowActions: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
-  rewatchActive: { padding: '5px 10px', borderRadius: '6px', border: 'none', backgroundColor: theme.colors.animeTeal, color: theme.colors.charcoal, fontSize: '10px', fontWeight: 700, cursor: 'pointer' },
-  rewatchInactive: { padding: '5px 10px', borderRadius: '6px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'transparent', color: theme.colors.slate, fontSize: '10px', cursor: 'pointer' },
-  removeButton: { padding: '5px 10px', borderRadius: '6px', border: `1px solid ${theme.colors.velvetRed}`, backgroundColor: 'transparent', color: theme.colors.velvetRed, fontSize: '10px', cursor: 'pointer' },
 }
