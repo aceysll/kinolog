@@ -2,11 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { theme } from '../theme';
 import { supabase } from '../lib/supabaseClient';
 import { BottomNav } from '../components/BottomNav';
+import './Stats.css';
 
 const Stats = () => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [error, setError] = useState(null);
+
+  const rootVars = {
+    '--charcoal': theme.colors.charcoal,
+    '--cardBg': theme.colors.cardBg,
+    '--slate': theme.colors.slate,
+    '--amber': theme.colors.projectorAmber,
+    '--velvetRed': theme.colors.velvetRed,
+    '--animeTeal': theme.colors.animeTeal,
+    '--screenGlow': theme.colors.screenGlow,
+    '--font-display': theme.fonts.display,
+    '--font-body': theme.fonts.body,
+    '--font-mono': theme.fonts.mono,
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,19 +43,11 @@ const Stats = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ backgroundColor: theme.colors.charcoal, minHeight: '100vh', padding: '16px', color: theme.colors.screenGlow }}>
-        Loading stats...
-      </div>
-    );
+    return <div className="stats-loading" style={rootVars}>Loading stats...</div>;
   }
 
   if (error) {
-    return (
-      <div style={{ backgroundColor: theme.colors.charcoal, minHeight: '100vh', padding: '16px', color: theme.colors.velvetRed }}>
-        Error: {error}
-      </div>
-    );
+    return <div className="stats-error" style={rootVars}>Error: {error}</div>;
   }
 
   const total = entries.length;
@@ -100,163 +106,125 @@ const Stats = () => {
   const maxDecadeCount = Math.max(...decadeList.map(([, c]) => c), 1);
   const hasDecadeData = decadeList.length > 0;
 
-  const StatCard = ({ label, value }) => (
-    <div style={{
-      flex: 1,
-      backgroundColor: theme.colors.cardBg,
-      borderRadius: '12px',
-      padding: '12px',
-      textAlign: 'center'
-    }}>
-      <div style={{ color: theme.colors.screenGlow, fontSize: '24px', fontFamily: theme.fonts.display, fontWeight: 'bold' }}>
-        {value}
-      </div>
-      <div style={{ color: theme.colors.slate, fontSize: '12px', fontFamily: theme.fonts.body }}>
-        {label}
-      </div>
-    </div>
-  );
-
-  const Section = ({ title, children }) => (
-    <div style={{ backgroundColor: theme.colors.cardBg, borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-      <h2 style={{ color: theme.colors.screenGlow, fontFamily: theme.fonts.display, fontSize: '18px', margin: '0 0 12px 0' }}>
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
+  const TYPE_COLOR = {
+    movie: theme.colors.projectorAmber,
+    tv: theme.colors.velvetRed,
+    anime: theme.colors.animeTeal,
+  };
 
   return (
-    <div style={{ backgroundColor: theme.colors.charcoal, minHeight: '100vh', padding: '16px 16px 80px' }}>
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-        <StatCard label="Total" value={total} />
-        <StatCard label="This Year" value={thisYear} />
-        <StatCard label="Rewatches" value={rewatched} />
+    <div className="stats-page" style={rootVars}>
+      <div className="stats-headline-row">
+        <div className="stats-card">
+          <div className="stats-card-value">{total}</div>
+          <div className="stats-card-label">Total</div>
+        </div>
+        <div className="stats-card">
+          <div className="stats-card-value">{thisYear}</div>
+          <div className="stats-card-label">This Year</div>
+        </div>
+        <div className="stats-card">
+          <div className="stats-card-value">{rewatched}</div>
+          <div className="stats-card-label">Rewatches</div>
+        </div>
       </div>
 
-      <Section title="Content Type Breakdown">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {types.map((type, idx) => {
-            const count = typeCounts[idx];
-            const pct = totalTypes > 0 ? (count / totalTypes * 100) : 0;
-            const color = type === 'movie' ? theme.colors.projectorAmber : type === 'tv' ? theme.colors.velvetRed : theme.colors.animeTeal;
-            return (
-              <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: theme.colors.screenGlow, fontFamily: theme.fonts.body, width: '60px' }}>
-                  {type}
-                </span>
-                <span style={{ color: theme.colors.slate, width: '40px', textAlign: 'right', fontFamily: theme.fonts.body }}>
-                  {count}
-                </span>
-                <div style={{ flex: 1, height: '8px', backgroundColor: theme.colors.charcoal, borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{ width: pct + '%', height: '100%', backgroundColor: color, borderRadius: '4px' }} />
-                </div>
-                <span style={{ color: theme.colors.slate, width: '40px', fontFamily: theme.fonts.body }}>
-                  {Math.round(pct)}%
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </Section>
+      <div className="sprocket-divider" />
 
-      <Section title="Ratings Distribution">
-        <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '12px' }}>
-          <span style={{ color: theme.colors.screenGlow, fontFamily: theme.fonts.body, marginRight: '4px' }}>Average:</span>
-          <span style={{ color: theme.colors.projectorAmber, fontFamily: theme.fonts.display, fontWeight: 'bold' }}>
-            {avgStars.toFixed(1)} stars
-          </span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {[1, 2, 3, 4, 5].map((star, idx) => {
-            const count = starCounts[idx];
-            const pct = (count / maxStarCount) * 100;
-            return (
-              <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: theme.colors.slate, width: '24px', fontFamily: theme.fonts.body }}>{star}</span>
-                <div style={{ flex: 1, height: '20px', backgroundColor: theme.colors.charcoal, borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.projectorAmber, borderRadius: '4px' }} />
-                </div>
-                <span style={{ color: theme.colors.slate, width: '30px', fontFamily: theme.fonts.body, textAlign: 'right' }}>
-                  {count}
-                </span>
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">Breakdown</p>
+        <h2 className="stats-section-title">Content Type</h2>
+        {types.map((type, idx) => {
+          const count = typeCounts[idx];
+          const pct = totalTypes > 0 ? (count / totalTypes * 100) : 0;
+          return (
+            <div key={type} className="stats-row">
+              <span className="stats-row-label">{type}</span>
+              <span className="stats-row-count">{count}</span>
+              <div className="stats-track">
+                <div className="stats-fill" style={{ width: pct + '%', backgroundColor: TYPE_COLOR[type] }} />
               </div>
-            );
-          })}
-        </div>
-      </Section>
+              <span className="stats-row-pct">{Math.round(pct)}%</span>
+            </div>
+          );
+        })}
+      </div>
 
-      <Section title="Watching Activity (Last 12 Months)">
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '150px', paddingBottom: '20px' }}>
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">Ratings</p>
+        <h2 className="stats-section-title">Distribution</h2>
+        <div className="stats-avg-line">
+          <span className="stats-avg-label">Average:</span>
+          <span className="stats-avg-value">{avgStars.toFixed(1)} stars</span>
+        </div>
+        {[1, 2, 3, 4, 5].map((star, idx) => {
+          const count = starCounts[idx];
+          const pct = (count / maxStarCount) * 100;
+          return (
+            <div key={star} className="stats-row">
+              <span className="stats-star-num">{star}</span>
+              <div className="stats-track-tall">
+                <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.projectorAmber }} />
+              </div>
+              <span className="stats-row-count">{count}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">Activity</p>
+        <h2 className="stats-section-title">Last 12 Months</h2>
+        <div className="stats-bar-chart">
           {monthCounts.map((count, idx) => {
             const height = (count / maxMonthCount) * 100;
             const label = monthLabels[idx].slice(5);
             return (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                <div style={{
-                  height: `${height}%`,
-                  width: '100%',
-                  backgroundColor: theme.colors.screenGlow,
-                  borderRadius: '2px 2px 0 0',
-                  minHeight: count > 0 ? '2px' : '0'
-                }} />
-                <span style={{ color: theme.colors.slate, fontSize: '10px', fontFamily: theme.fonts.body, marginTop: '4px' }}>
-                  {label}
-                </span>
+              <div key={idx} className="stats-bar-col">
+                <div className="stats-bar" style={{ height: `${height}%`, minHeight: count > 0 ? '2px' : '0' }} />
+                <span className="stats-bar-label">{label}</span>
               </div>
             );
           })}
         </div>
-      </Section>
+      </div>
 
-      <Section title="Weekday Breakdown">
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '120px', paddingBottom: '20px' }}>
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">Habits</p>
+        <h2 className="stats-section-title">Weekday Breakdown</h2>
+        <div className="stats-bar-chart" style={{ height: '110px' }}>
           {weekdayCounts.map((count, idx) => {
             const height = (count / maxWeekdayCount) * 100;
             return (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                <div style={{
-                  height: `${height}%`,
-                  width: '100%',
-                  backgroundColor: theme.colors.screenGlow,
-                  borderRadius: '2px 2px 0 0',
-                  minHeight: count > 0 ? '2px' : '0'
-                }} />
-                <span style={{ color: theme.colors.slate, fontSize: '8px', fontFamily: theme.fonts.body, marginTop: '4px' }}>
-                  {weekdays[idx].slice(0, 3)}
-                </span>
+              <div key={idx} className="stats-bar-col">
+                <div className="stats-bar" style={{ height: `${height}%`, minHeight: count > 0 ? '2px' : '0' }} />
+                <span className="stats-bar-label">{weekdays[idx].slice(0, 3)}</span>
               </div>
             );
           })}
         </div>
-      </Section>
+      </div>
 
-      <Section title="Decades Watched">
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">Timeline</p>
+        <h2 className="stats-section-title">Decades Watched</h2>
         {hasDecadeData ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {decadeList.map(([decade, count]) => {
-              const pct = (count / maxDecadeCount) * 100;
-              return (
-                <div key={decade} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: theme.colors.screenGlow, fontFamily: theme.fonts.body, width: '50px' }}>
-                    {decade}
-                  </span>
-                  <div style={{ flex: 1, height: '16px', backgroundColor: theme.colors.charcoal, borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.animeTeal, borderRadius: '4px' }} />
-                  </div>
-                  <span style={{ color: theme.colors.slate, width: '30px', fontFamily: theme.fonts.body, textAlign: 'right' }}>
-                    {count}
-                  </span>
+          decadeList.map(([decade, count]) => {
+            const pct = (count / maxDecadeCount) * 100;
+            return (
+              <div key={decade} className="stats-row">
+                <span className="stats-row-label" style={{ width: '50px' }}>{decade}</span>
+                <div className="stats-track-decade">
+                  <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.animeTeal }} />
                 </div>
-              );
-            })}
-          </div>
+                <span className="stats-row-count">{count}</span>
+              </div>
+            );
+          })
         ) : (
-          <p style={{ color: theme.colors.slate, fontFamily: theme.fonts.body, fontSize: '13px', margin: 0 }}>
-            No decade data yet. This fills in as you log new titles.
-          </p>
+          <p className="stats-empty-note">No decade data yet. This fills in as you log new titles.</p>
         )}
-      </Section>
+      </div>
 
       <BottomNav />
     </div>
