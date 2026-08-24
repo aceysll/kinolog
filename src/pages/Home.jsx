@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
+import './Home.css'
 
 const BADGE_COLORS = {
   movie: theme.colors.projectorAmber,
@@ -30,7 +31,7 @@ export default function Home() {
       .from('watched_entries')
       .select('*', { count: 'exact' })
       .eq('user_id', user.id)
-      .order('watched_date', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(8)
       .then(({ data, count }) => {
         setWatchedCount(count ?? 0)
@@ -38,68 +39,81 @@ export default function Home() {
       })
   }, [user.id])
 
+  const rootVars = {
+    '--charcoal': theme.colors.charcoal,
+    '--cardBg': theme.colors.cardBg,
+    '--slate': theme.colors.slate,
+    '--amber': theme.colors.projectorAmber,
+    '--velvetRed': theme.colors.velvetRed,
+    '--screenGlow': theme.colors.screenGlow,
+    '--font-display': theme.fonts.display,
+    '--font-body': theme.fonts.body,
+    '--font-mono': theme.fonts.mono,
+  }
+
   return (
-    <div style={styles.page}>
-      <div style={styles.hero}>
-        <div style={styles.backdropGrid}>
+    <div className="home-page" style={rootVars}>
+      <div className="home-hero">
+        <div className="home-backdrop-grid">
           {backdrops.map((item, i) => (
             <div
               key={i}
-              style={{ ...styles.backdropTile, backgroundImage: `url(${item.backdrop_url})` }}
+              className="home-backdrop-tile"
+              style={{ backgroundImage: `url(${item.backdrop_url})` }}
             />
           ))}
         </div>
-        <div style={styles.heroOverlay} />
-        <div style={styles.heroContent}>
-          <h1 style={styles.logo}>Kinolog</h1>
-          <p style={styles.tagline}>Your cinema, counted.</p>
+        <div className="home-hero-overlay" />
+        <div className="home-hero-content">
+          <h1 className="home-logo">Kinolog</h1>
+          <p className="home-tagline">Your cinema, counted.</p>
         </div>
       </div>
 
-      <div style={styles.body}>
+      <div className="home-body">
+        <div className="sprocket-divider" />
+
         {watchedCount === 0 && (
-          <Link to="/onboarding" style={styles.onboardingBanner}>
+          <Link to="/onboarding" className="home-onboarding-banner">
             New here? Pick a few favorites to get started →
           </Link>
         )}
 
         {watchedCount > 0 && (
           <>
-            <p style={styles.statLine}>
-              You've logged <span style={styles.statNumber}>{watchedCount}</span> title{watchedCount === 1 ? '' : 's'}
+            <p className="home-stat-line">
+              You've logged <span className="home-stat-number">{watchedCount}</span> title{watchedCount === 1 ? '' : 's'}
             </p>
 
-            <div style={styles.sectionHeader}>
-              <h2 style={styles.sectionTitle}>Recently Logged</h2>
-              <Link to="/watched" style={styles.seeAllLink}>See all</Link>
+            <div className="home-section-header">
+              <h2 className="home-section-title">Recently Logged</h2>
+              <Link to="/watched" className="home-see-all">See all</Link>
             </div>
 
-            <div style={styles.recentScroll}>
+            <div className="home-recent-scroll">
               {recent.map((entry) => (
-                <Link key={entry.id} to="/watched" style={styles.recentCard}>
-                  <div style={styles.recentPosterWrap}>
+                <Link key={entry.id} to="/watched" className="home-recent-card">
+                  <div className="home-recent-poster-wrap">
                     {entry.poster_url ? (
-                      <img src={entry.poster_url} alt={entry.title} style={styles.recentPoster} />
+                      <img src={entry.poster_url} alt={entry.title} className="home-recent-poster" />
                     ) : (
-                      <div style={styles.recentPosterFallback}>No image</div>
+                      <div className="home-recent-poster-fallback">No image</div>
                     )}
                     <span
-                      style={{
-                        ...styles.badge,
-                        backgroundColor: BADGE_COLORS[entry.media_type] || theme.colors.slate,
-                      }}
+                      className="home-badge"
+                      style={{ backgroundColor: BADGE_COLORS[entry.media_type] || theme.colors.slate }}
                     >
                       {entry.media_type}
                     </span>
                   </div>
-                  <p style={styles.recentTitle}>{entry.title}</p>
+                  <p className="home-recent-title">{entry.title}</p>
                 </Link>
               ))}
             </div>
           </>
         )}
 
-        <Link to="/search" style={styles.exploreLink}>
+        <Link to="/search" className="home-explore-link">
           Explore trending movies, shows, and anime →
         </Link>
       </div>
@@ -107,30 +121,4 @@ export default function Home() {
       <BottomNav />
     </div>
   )
-}
-
-const styles = {
-  page: { minHeight: '100vh', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body, color: theme.colors.screenGlow, paddingBottom: '90px' },
-  hero: { position: 'relative', height: '220px', overflow: 'hidden' },
-  backdropGrid: { position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)' },
-  backdropTile: { backgroundSize: 'cover', backgroundPosition: 'center', filter: 'grayscale(20%)' },
-  heroOverlay: { position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(22,23,28,0.7) 0%, rgba(22,23,28,0.97) 100%)' },
-  heroContent: { position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' },
-  logo: { fontFamily: theme.fonts.display, fontSize: '38px', margin: 0 },
-  tagline: { color: theme.colors.slate, fontSize: '13px', margin: 0 },
-  body: { maxWidth: '900px', margin: '0 auto', padding: '20px 20px 40px 20px' },
-  onboardingBanner: { display: 'block', textAlign: 'center', padding: '12px', borderRadius: '10px', backgroundColor: theme.colors.cardBg, color: theme.colors.projectorAmber, textDecoration: 'none', fontSize: '14px', fontWeight: 600, border: `1px solid ${theme.colors.projectorAmber}`, marginBottom: '16px' },
-  statLine: { fontSize: '15px', color: theme.colors.slate, margin: '0 0 24px 0' },
-  statNumber: { color: theme.colors.projectorAmber, fontWeight: 700, fontFamily: theme.fonts.display, fontSize: '18px' },
-  sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' },
-  sectionTitle: { fontFamily: theme.fonts.display, fontSize: '20px', margin: 0 },
-  seeAllLink: { color: theme.colors.slate, fontSize: '12px', textDecoration: 'none' },
-  recentScroll: { display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '28px' },
-  recentCard: { flexShrink: 0, width: '110px', textDecoration: 'none', color: 'inherit' },
-  recentPosterWrap: { position: 'relative' },
-  recentPoster: { width: '110px', height: '165px', borderRadius: '8px', objectFit: 'cover', display: 'block' },
-  recentPosterFallback: { width: '110px', height: '165px', borderRadius: '8px', backgroundColor: theme.colors.slate, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: theme.colors.screenGlow },
-  badge: { position: 'absolute', top: '5px', left: '5px', fontSize: '8px', fontWeight: 700, padding: '2px 6px', borderRadius: '20px', color: theme.colors.charcoal, textTransform: 'uppercase' },
-  recentTitle: { fontSize: '12px', fontWeight: 600, margin: '6px 0 0 0', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  exploreLink: { display: 'block', textAlign: 'center', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${theme.colors.slate}`, backgroundColor: theme.colors.cardBg, color: theme.colors.screenGlow, textDecoration: 'none', fontSize: '15px', fontWeight: 600 },
 }
