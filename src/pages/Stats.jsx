@@ -89,6 +89,17 @@ const Stats = () => {
   });
   const maxWeekdayCount = Math.max(...weekdayCounts, 1);
 
+  const decadeMap = {};
+  entries.forEach(e => {
+    if (!e.year) return;
+    const decade = Math.floor(e.year / 10) * 10;
+    const key = `${decade}s`;
+    decadeMap[key] = (decadeMap[key] || 0) + 1;
+  });
+  const decadeList = Object.entries(decadeMap).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+  const maxDecadeCount = Math.max(...decadeList.map(([, c]) => c), 1);
+  const hasDecadeData = decadeList.length > 0;
+
   const StatCard = ({ label, value }) => (
     <div style={{
       flex: 1,
@@ -218,6 +229,33 @@ const Stats = () => {
             );
           })}
         </div>
+      </Section>
+
+      <Section title="Decades Watched">
+        {hasDecadeData ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {decadeList.map(([decade, count]) => {
+              const pct = (count / maxDecadeCount) * 100;
+              return (
+                <div key={decade} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: theme.colors.screenGlow, fontFamily: theme.fonts.body, width: '50px' }}>
+                    {decade}
+                  </span>
+                  <div style={{ flex: 1, height: '16px', backgroundColor: theme.colors.charcoal, borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.animeTeal, borderRadius: '4px' }} />
+                  </div>
+                  <span style={{ color: theme.colors.slate, width: '30px', fontFamily: theme.fonts.body, textAlign: 'right' }}>
+                    {count}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p style={{ color: theme.colors.slate, fontFamily: theme.fonts.body, fontSize: '13px', margin: 0 }}>
+            No decade data yet. This fills in as you log new titles.
+          </p>
+        )}
       </Section>
 
       <BottomNav />
