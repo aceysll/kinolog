@@ -18,44 +18,46 @@ function isLikelyAnime(item) {
   return genreIds.includes(16) && originCountry.includes('JP')
 }
 
+const MIN_VOTE_COUNT = 3000
+
+async function fetchTMDBPages(path, headers, pages) {
+  const requests = pages.map((page) =>
+    fetch(`https://api.themoviedb.org/3/${path}?page=${page}`, { headers })
+  )
+  const responses = await Promise.all(requests)
+  const datas = await Promise.all(
+    responses.map((r) => (r.ok ? r.json() : { results: [] }))
+  )
+  return datas.flatMap((d) => d.results || [])
+}
+
 async function fetchTMDBTopRated() {
   const headers = {
     Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
     Accept: 'application/json',
   }
 
-  const [movieRes, tvRes] = await Promise.all([
-    fetch('https://api.themoviedb.org/3/movie/top_rated', { headers }),
-    fetch('https://api.themoviedb.org/3/tv/top_rated', { headers }),
+  const [movieResults, tvResults] = await Promise.all([
+    fetchTMDBPages('movie/top_rated', headers, [1, 2, 3]),
+    fetchTMDBPages('tv/top_rated', headers, [1, 2, 3]),
   ])
 
   const now = new Date()
-  const results = []
 
-  if (movieRes.ok) {
-    const movieData = await movieRes.json()
-    results.push(
-      ...movieData.results.slice(0, 8).map((item) => ({
-        media_type: 'movie',
-        raw: item,
-      }))
-    )
-  }
+  const movies = movieResults
+    .filter((item) => item.vote_count >= MIN_VOTE_COUNT)
+    .sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, 8)
+    .map((item) => ({ media_type: 'movie', raw: item }))
 
-  if (tvRes.ok) {
-    const tvData = await tvRes.json()
-    results.push(
-      ...tvData.results
-        .filter((item) => !isLikelyAnime({ ...item, media_type: 'tv' }))
-        .slice(0, 8)
-        .map((item) => ({
-          media_type: 'tv',
-          raw: item,
-        }))
-    )
-  }
+  const tv = tvResults
+    .filter((item) => item.vote_count >= MIN_VOTE_COUNT)
+    .filter((item) => !isLikelyAnime({ ...item, media_type: 'tv' }))
+    .sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, 8)
+    .map((item) => ({ media_type: 'tv', raw: item }))
 
-  return results.map(({ media_type, raw }) => {
+  return [...movies, ...tv].map(({ media_type, raw }) => {
     const releaseDateRaw = media_type === 'movie' ? raw.release_date : raw.first_air_date
     return {
       source: 'tmdb',
