@@ -1,0 +1,124 @@
+.profile-page {
+  min-height: 100vh;
+  background-color: var(--charcoal);
+  font-family: var(--font-body);
+  color: var(--screenGlow);
+  padding-bottom: 90px;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 24px 28px 24px;
+  background: linear-gradient(180deg, var(--cardBg) 0%, var(--charcoal) 100%);
+}
+
+.profile-avatar-ring {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 2px dashed var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background-color: var(--amber);
+  color: var(--charcoal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.profile-email {
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin: 0;
+  word-break: break-all;
+  text-align: center;
+}
+
+.profile-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.sprocket-divider {
+  height: 10px;
+  margin: 0 0 20px 0;
+  border-radius: 5px;
+  background-color: var(--slate);
+  background-image: radial-gradient(circle, var(--charcoal) 3px, transparent 3.5px);
+  background-size: 18px 10px;
+  background-position: 0 center;
+  opacity: 0.3;
+}
+
+.profile-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.profile-nav-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.profile-nav-card {
+  background-color: var(--cardBg);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(242,239,233,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+
+.profile-nav-card.disabled {
+  opacity: 0.5;
+  border: 1px dashed var(--slate);
+  box-shadow: none;
+}
+
+.profile-nav-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+}
+
+.profile-nav-subtitle {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--slate);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.profile-signout {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--slate);
+  background-color: transparent;
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
