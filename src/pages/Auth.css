@@ -1,0 +1,115 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--charcoal);
+  font-family: var(--font-body);
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 28px;
+  background-color: var(--cardBg);
+  border-radius: 12px;
+  border: 1px solid rgba(242,239,233,0.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  text-align: left;
+}
+
+.auth-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--screenGlow);
+  margin: 0 0 4px 0;
+  text-align: left;
+}
+
+.auth-subtitle {
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  margin: 0 0 16px 0;
+  text-align: left;
+}
+
+.sprocket-divider {
+  height: 10px;
+  margin: 0 0 20px 0;
+  border-radius: 5px;
+  background-color: var(--slate);
+  background-image: radial-gradient(circle, var(--charcoal) 3px, transparent 3.5px);
+  background-size: 18px 10px;
+  background-position: 0 center;
+  opacity: 0.3;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--slate);
+  background-color: transparent;
+  color: var(--screenGlow);
+  font-family: var(--font-body);
+  font-size: 15px;
+  transition: border-color 0.15s ease;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--amber);
+}
+
+.auth-button {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--amber);
+  color: var(--charcoal);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.auth-error {
+  color: var(--velvetRed);
+  font-size: 13px;
+  margin: 0;
+}
+
+.auth-message {
+  color: var(--amber);
+  font-size: 13px;
+  margin: 0;
+}
+
+.auth-footer {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--slate);
+  text-align: center;
+}
+
+.auth-link {
+  color: var(--amber);
+  text-decoration: none;
+  font-family: var(--font-mono);
+}

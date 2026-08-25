@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { theme } from '../theme'
+import './Auth.css'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -24,18 +25,33 @@ export default function Login() {
     navigate('/')
   }
 
+  const rootVars = {
+    '--charcoal': theme.colors.charcoal,
+    '--cardBg': theme.colors.cardBg,
+    '--slate': theme.colors.slate,
+    '--amber': theme.colors.projectorAmber,
+    '--velvetRed': theme.colors.velvetRed,
+    '--screenGlow': theme.colors.screenGlow,
+    '--font-display': theme.fonts.display,
+    '--font-body': theme.fonts.body,
+    '--font-mono': theme.fonts.mono,
+  }
+
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Kinolog</h1>
-        <p style={styles.subtitle}>Log in to your watched list</p>
-        <form onSubmit={handleSubmit} style={styles.form}>
+    <div className="auth-page" style={rootVars}>
+      <div className="auth-card">
+        <h1 className="auth-title">Kinolog</h1>
+        <p className="auth-subtitle">Log in to your watched list</p>
+
+        <div className="sprocket-divider" />
+
+        <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={styles.input}
+            className="auth-input"
             required
           />
           <input
@@ -43,31 +59,19 @@ export default function Login() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={styles.input}
+            className="auth-input"
             required
           />
-          {error && <p style={styles.error}>{error}</p>}
-          <button type="submit" disabled={loading} style={styles.button}>
+          {error && <p className="auth-error">{error}</p>}
+          <button type="submit" disabled={loading} className="auth-button">
             {loading ? 'Logging in...' : 'Log in'}
           </button>
         </form>
-        <p style={styles.footer}>
-          No account? <Link to="/signup" style={styles.link}>Sign up</Link>
+
+        <p className="auth-footer">
+          No account? <Link to="/signup" className="auth-link">Sign up</Link>
         </p>
       </div>
     </div>
   )
-}
-
-const styles = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.charcoal, fontFamily: theme.fonts.body },
-  card: { width: '100%', maxWidth: '360px', padding: '32px 28px', backgroundColor: theme.colors.cardBg, borderRadius: '12px' },
-  title: { fontFamily: theme.fonts.display, fontSize: '32px', color: theme.colors.screenGlow, margin: '0 0 4px 0' },
-  subtitle: { color: theme.colors.slate, fontSize: '14px', margin: '0 0 24px 0' },
-  form: { display: 'flex', flexDirection: 'column', gap: '12px' },
-  input: { padding: '12px 14px', borderRadius: '8px', border: `1px solid ${theme.colors.slate}`, backgroundColor: 'transparent', color: theme.colors.screenGlow, fontSize: '15px' },
-  button: { padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: theme.colors.projectorAmber, color: theme.colors.charcoal, fontWeight: 600, fontSize: '15px', cursor: 'pointer', marginTop: '8px' },
-  error: { color: theme.colors.velvetRed, fontSize: '13px', margin: 0 },
-  footer: { marginTop: '20px', fontSize: '13px', color: theme.colors.slate, textAlign: 'center' },
-  link: { color: theme.colors.projectorAmber, textDecoration: 'none' },
 }
