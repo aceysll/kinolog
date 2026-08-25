@@ -95,12 +95,14 @@
 }
 
 .profile-nav-title {
+  text-align: left;
   font-size: 15px;
   font-weight: 600;
   margin: 0 0 2px 0;
 }
 
 .profile-nav-subtitle {
+  text-align: left;
   font-size: 11px;
   font-family: var(--font-mono);
   color: var(--slate);
