@@ -13,6 +13,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [addedIds, setAddedIds] = useState(new Set())
+  const [personResult, setPersonResult] = useState(null)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function Search() {
   useEffect(() => {
     if (!query.trim()) {
       setResults([])
+      setPersonResult(null)
       return
     }
     const timeout = setTimeout(() => runSearch(query), 400)
@@ -56,6 +58,7 @@ export default function Search() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Search failed')
       setResults(data.results)
+      setPersonResult(data.person || null)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -167,6 +170,35 @@ export default function Search() {
 
         {loading && <p className="search-status">Searching...</p>}
         {error && <p className="search-error">{error}</p>}
+
+        {personResult && (
+          <div className="search-person-section">
+            <div className="search-person-header">
+              {personResult.profile_url && (
+                <img
+                  src={personResult.profile_url}
+                  alt={personResult.name}
+                  className="search-person-photo"
+                />
+              )}
+              <p className="search-person-name">Directed by {personResult.name}</p>
+            </div>
+            <div className="search-grid">
+              {personResult.filmography.map((item) => {
+                const key = `${item.source}-${item.external_id}`
+                return (
+                  <TitleCard
+                    key={key}
+                    item={item}
+                    added={addedIds.has(key)}
+                    onAdd={handleAdd}
+                  />
+                )
+              })}
+            </div>
+            <div className="sprocket-divider" />
+          </div>
+        )}
 
         <div className="search-grid">
           {displayItems.map((item) => {

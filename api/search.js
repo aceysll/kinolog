@@ -6,13 +6,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [tmdbResults, anilistResults] = await Promise.all([
+    const [tmdbResults, anilistResults, personResult] = await Promise.all([
       searchTMDB(q),
       searchAniList(q),
+      searchPerson(q),
     ])
 
     res.status(200).json({
       results: [...tmdbResults, ...anilistResults],
+      person: personResult,
     })
   } catch (err) {
     res.status(500).json({ error: 'Search failed', details: err.message })
@@ -69,6 +71,86 @@ async function searchTMDB(query) {
         language: null,
       }
     })
+}
+
+// Backlog: director/person search. TMDB's search/multi only text-matches titles,
+// so a name search needs its own lookup, then two credit calls filtered to Director.
+async function searchPerson(query) {
+  const searchRes = await fetch(
+    `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+        Accept: 'application/json',
+      },
+    }
+  )
+  if (!searchRes.ok) return null
+
+  const searchData = await searchRes.json()
+  const candidates = searchData.results || []
+  if (candidates.length === 0) return null
+
+  const top = candidates[0]
+  // Confidence threshold: skip low-popularity coincidental name matches,
+  // e.g. someone typing a common word that happens to match an obscure person
+  const isLikelyMatch = top.popularity > 5 || top.known_for_department === 'Directing'
+  if (!isLikelyMatch) return null
+
+  const [movieCreditsRes, tvCreditsRes] = await Promise.all([
+    fetch(`https://api.themoviedb.org/3/person/${top.id}/movie_credits`, {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+        Accept: 'application/json',
+      },
+    }),
+    fetch(`https://api.themoviedb.org/3/person/${top.id}/tv_credits`, {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+        Accept: 'application/json',
+      },
+    }),
+  ])
+
+  const movieCredits = movieCreditsRes.ok ? await movieCreditsRes.json() : { crew: [] }
+  const tvCredits = tvCreditsRes.ok ? await tvCreditsRes.json() : { crew: [] }
+
+  const directedMovies = (movieCredits.crew || [])
+    .filter((c) => c.job === 'Director')
+    .map((c) => ({
+      source: 'tmdb',
+      external_id: String(c.id),
+      media_type: 'movie',
+      title: c.title,
+      year: c.release_date?.slice(0, 4) || null,
+      poster_url: c.poster_path ? `https://image.tmdb.org/t/p/w342${c.poster_path}` : null,
+      popularity: c.popularity || 0,
+    }))
+
+  const directedTV = (tvCredits.crew || [])
+    .filter((c) => c.job === 'Director')
+    .map((c) => ({
+      source: 'tmdb',
+      external_id: String(c.id),
+      media_type: 'tv',
+      title: c.name,
+      year: c.first_air_date?.slice(0, 4) || null,
+      poster_url: c.poster_path ? `https://image.tmdb.org/t/p/w342${c.poster_path}` : null,
+      popularity: c.popularity || 0,
+    }))
+
+  const filmography = [...directedMovies, ...directedTV].sort(
+    (a, b) => b.popularity - a.popularity
+  )
+
+  if (filmography.length === 0) return null
+
+  return {
+    id: top.id,
+    name: top.name,
+    profile_url: top.profile_path ? `https://image.tmdb.org/t/p/w185${top.profile_path}` : null,
+    filmography,
+  }
 }
 
 async function searchAniList(query) {

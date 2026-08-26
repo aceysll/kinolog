@@ -95,3 +95,29 @@
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 18px;
 }
+
+.search-person-section {
+  margin-bottom: 8px;
+}
+
+.search-person-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.search-person-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(242,239,233,0.1);
+}
+
+.search-person-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--screenGlow);
+  margin: 0;
+}
