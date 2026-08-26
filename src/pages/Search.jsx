@@ -22,6 +22,23 @@ export default function Search() {
       .catch(() => setTrending([]))
   }, [])
 
+  // Phase 3 backlog: mark titles already in the user's library as added on load,
+  // not just ones added this session
+  useEffect(() => {
+    if (!user) return
+    const fetchExisting = async () => {
+      const { data, error } = await supabase
+        .from('watched_entries')
+        .select('source, external_id')
+        .eq('user_id', user.id)
+      if (!error && data) {
+        const keys = data.map((row) => `${row.source}-${row.external_id}`)
+        setAddedIds(new Set(keys))
+      }
+    }
+    fetchExisting()
+  }, [user])
+
   useEffect(() => {
     if (!query.trim()) {
       setResults([])
