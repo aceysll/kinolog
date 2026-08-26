@@ -61,6 +61,12 @@ async function searchTMDB(query) {
           ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
           : null,
         upcoming: releaseDateRaw ? new Date(releaseDateRaw) > now : false,
+        // Phase 3 fields: filled later via /api/tmdb-details after insert, left null here
+        genres: null,
+        director: null,
+        cast_members: null,
+        country: null,
+        language: null,
       }
     })
 }
@@ -84,6 +90,18 @@ async function searchAniList(query) {
             medium
           }
           bannerImage
+          genres
+          staff(sort: RELEVANCE, perPage: 5) {
+            edges {
+              role
+              node {
+                name {
+                  full
+                }
+              }
+            }
+          }
+          countryOfOrigin
         }
       }
     }
@@ -106,14 +124,31 @@ async function searchAniList(query) {
   const data = await response.json()
   const media = data?.data?.Page?.media || []
 
-  return media.map((item) => ({
-    source: 'anilist',
-    external_id: String(item.id),
-    media_type: 'anime',
-    title: item.title.english || item.title.romaji,
-    year: item.startDate?.year || null,
-    poster_url: item.coverImage?.medium || null,
-    backdrop_url: item.bannerImage || null,
-    upcoming: item.status === 'NOT_YET_RELEASED',
-  }))
+  return media.map((item) => {
+    let director = null
+    const staffEdges = item.staff?.edges || []
+    for (const edge of staffEdges) {
+      if (edge.role && edge.role.toLowerCase().includes('director')) {
+        director = edge.node?.name?.full || null
+        break
+      }
+    }
+
+    return {
+      source: 'anilist',
+      external_id: String(item.id),
+      media_type: 'anime',
+      title: item.title.english || item.title.romaji,
+      year: item.startDate?.year || null,
+      poster_url: item.coverImage?.medium || null,
+      backdrop_url: item.bannerImage || null,
+      upcoming: item.status === 'NOT_YET_RELEASED',
+      // Phase 3 fields
+      genres: item.genres || [],
+      director,
+      cast_members: null, // skipped for anime, dub language ambiguity, revisit later
+      country: item.countryOfOrigin || null,
+      language: 'ja',
+    }
+  })
 }
