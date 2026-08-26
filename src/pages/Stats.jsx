@@ -257,12 +257,14 @@ const Stats = () => {
           topActors.map(([name, count]) => {
             const pct = (count / maxActorCount) * 100;
             return (
-              <div key={name} className="stats-row">
-                <span className="stats-row-label">{name}</span>
+              <div key={name} className="stats-row-people">
+                <div className="stats-row-people-top">
+                  <span className="stats-row-people-name">{name}</span>
+                  <span className="stats-row-people-count">{count}</span>
+                </div>
                 <div className="stats-track-decade">
                   <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.projectorAmber }} />
                 </div>
-                <span className="stats-row-count">{count}</span>
               </div>
             );
           })
@@ -278,12 +280,14 @@ const Stats = () => {
           topDirectors.map(([name, count]) => {
             const pct = (count / maxDirectorCount) * 100;
             return (
-              <div key={name} className="stats-row">
-                <span className="stats-row-label">{name}</span>
+              <div key={name} className="stats-row-people">
+                <div className="stats-row-people-top">
+                  <span className="stats-row-people-name">{name}</span>
+                  <span className="stats-row-people-count">{count}</span>
+                </div>
                 <div className="stats-track-decade">
                   <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.velvetRed }} />
                 </div>
-                <span className="stats-row-count">{count}</span>
               </div>
             );
           })

@@ -131,72 +131,30 @@
   overflow: hidden;
 }
 
-.stats-track-decade {
-  flex: 1;
-  height: 16px;
-  background-color: var(--charcoal);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.stats-avg-line {
-  display: flex;
-  align-items: baseline;
+/* Phase 3: People rows (Top Actors, Top Directors) stack name above bar,
+   since names run longer and wrap unlike the short fixed-width labels above */
+.stats-row-people {
   margin-bottom: 14px;
-  gap: 6px;
 }
 
-.stats-avg-label {
+.stats-row-people-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stats-row-people-name {
   color: var(--screenGlow);
   font-family: var(--font-body);
   font-size: 13px;
+  line-height: 1.3;
 }
 
-.stats-avg-value {
-  color: var(--amber);
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.stats-star-num {
+.stats-row-people-count {
   color: var(--slate);
   font-family: var(--font-mono);
-  width: 20px;
-  font-size: 13px;
-}
-
-.stats-bar-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 140px;
-  padding-bottom: 18px;
-}
-
-.stats-bar-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-.stats-bar {
-  width: 100%;
-  background-color: var(--screenGlow);
-  border-radius: 2px 2px 0 0;
-}
-
-.stats-bar-label {
-  color: var(--slate);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  margin-top: 4px;
-}
-
-.stats-empty-note {
-  color: var(--slate);
-  font-family: var(--font-body);
-  font-size: 13px;
-  margin: 0;
+  font-size: 12px;
+  flex-shrink: 0;
 }
