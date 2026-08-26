@@ -111,6 +111,61 @@
   letter-spacing: 0.3px;
 }
 
+.profile-fingerprint-section {
+  background-color: var(--cardBg);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(242,239,233,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-fingerprint-button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--amber);
+  background-color: transparent;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.profile-fingerprint-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.profile-fingerprint-button:not(:disabled):active {
+  background-color: var(--amber);
+  color: var(--charcoal);
+}
+
+.profile-fingerprint-text {
+  margin: 14px 0 0 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--screenGlow);
+}
+
+.profile-fingerprint-error {
+  margin: 14px 0 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--velvetRed);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 .profile-signout {
   width: 100%;
   padding: 12px;

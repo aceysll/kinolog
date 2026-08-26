@@ -106,6 +106,30 @@ const Stats = () => {
   const maxDecadeCount = Math.max(...decadeList.map(([, c]) => c), 1);
   const hasDecadeData = decadeList.length > 0;
 
+  // Phase 3: Top Actors, aggregated from cast_members arrays
+  const actorCounts = {};
+  entries.forEach(e => {
+    if (Array.isArray(e.cast_members)) {
+      e.cast_members.forEach(name => {
+        actorCounts[name] = (actorCounts[name] || 0) + 1;
+      });
+    }
+  });
+  const topActors = Object.entries(actorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxActorCount = Math.max(...topActors.map(([, c]) => c), 1);
+  const hasActorData = topActors.length > 0;
+
+  // Phase 3: Top Directors, aggregated from director column
+  const directorCounts = {};
+  entries.forEach(e => {
+    if (e.director) {
+      directorCounts[e.director] = (directorCounts[e.director] || 0) + 1;
+    }
+  });
+  const topDirectors = Object.entries(directorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxDirectorCount = Math.max(...topDirectors.map(([, c]) => c), 1);
+  const hasDirectorData = topDirectors.length > 0;
+
   const TYPE_COLOR = {
     movie: theme.colors.projectorAmber,
     tv: theme.colors.velvetRed,
@@ -223,6 +247,48 @@ const Stats = () => {
           })
         ) : (
           <p className="stats-empty-note">No decade data yet. This fills in as you log new titles.</p>
+        )}
+      </div>
+
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">People</p>
+        <h2 className="stats-section-title">Top Actors</h2>
+        {hasActorData ? (
+          topActors.map(([name, count]) => {
+            const pct = (count / maxActorCount) * 100;
+            return (
+              <div key={name} className="stats-row">
+                <span className="stats-row-label">{name}</span>
+                <div className="stats-track-decade">
+                  <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.projectorAmber }} />
+                </div>
+                <span className="stats-row-count">{count}</span>
+              </div>
+            );
+          })
+        ) : (
+          <p className="stats-empty-note">No actor data yet. This fills in as new titles finish syncing.</p>
+        )}
+      </div>
+
+      <div className="stats-section">
+        <p className="stats-section-eyebrow">People</p>
+        <h2 className="stats-section-title">Top Directors</h2>
+        {hasDirectorData ? (
+          topDirectors.map(([name, count]) => {
+            const pct = (count / maxDirectorCount) * 100;
+            return (
+              <div key={name} className="stats-row">
+                <span className="stats-row-label">{name}</span>
+                <div className="stats-track-decade">
+                  <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.velvetRed }} />
+                </div>
+                <span className="stats-row-count">{count}</span>
+              </div>
+            );
+          })
+        ) : (
+          <p className="stats-empty-note">No director data yet. This fills in as new titles finish syncing.</p>
         )}
       </div>
 

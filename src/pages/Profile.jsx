@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { BottomNav } from '../components/BottomNav'
+import { supabase } from '../lib/supabaseClient'
 import { theme } from '../theme'
 import './Profile.css'
 
@@ -40,6 +42,74 @@ function FolderIcon() {
 export default function Profile() {
   const { user, signOut } = useAuth()
   const initial = user?.email?.charAt(0).toUpperCase() || '?'
+
+  const [entries, setEntries] = useState([])
+  const [fingerprint, setFingerprint] = useState('')
+  const [fingerprintLoading, setFingerprintLoading] = useState(false)
+  const [fingerprintError, setFingerprintError] = useState('')
+
+  useEffect(() => {
+    if (!user) return
+    const fetchEntries = async () => {
+      const { data, error } = await supabase
+        .from('watched_entries')
+        .select('genres, director, country')
+        .eq('user_id', user.id)
+      if (!error) setEntries(data || [])
+    }
+    fetchEntries()
+  }, [user])
+
+  function aggregateArrayField(field) {
+    const counts = {}
+    entries.forEach((entry) => {
+      const list = entry[field]
+      if (Array.isArray(list)) {
+        list.forEach((item) => {
+          counts[item] = (counts[item] || 0) + 1
+        })
+      }
+    })
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10)
+  }
+
+  function aggregateScalarField(field) {
+    const counts = {}
+    entries.forEach((entry) => {
+      const val = entry[field]
+      if (val) {
+        counts[val] = (counts[val] || 0) + 1
+      }
+    })
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10)
+  }
+
+  async function generateFingerprint() {
+    setFingerprintLoading(true)
+    setFingerprintError('')
+    try {
+      const genres = aggregateArrayField('genres')
+      const directors = aggregateScalarField('director')
+      const countries = aggregateScalarField('country')
+
+      const res = await fetch('/api/fingerprint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ genres, directors, countries }),
+      })
+      const text = await res.text()
+      const match = text.match(/<fingerprint>([\s\S]*?)<\/fingerprint>/)
+      if (match) {
+        setFingerprint(match[1].trim())
+      } else {
+        setFingerprintError('Could not generate a taste profile just now.')
+      }
+    } catch (err) {
+      setFingerprintError('Could not generate a taste profile just now.')
+    } finally {
+      setFingerprintLoading(false)
+    }
+  }
 
   const rootVars = {
     '--charcoal': theme.colors.charcoal,
@@ -94,6 +164,22 @@ export default function Profile() {
               <p className="profile-nav-subtitle">Coming soon</p>
             </div>
           </div>
+        </div>
+
+        <div className="sprocket-divider" />
+
+        <div className="profile-fingerprint-section">
+          <p className="profile-nav-title">Taste Profile</p>
+          <p className="profile-nav-subtitle">A short read on your taste, built from what you've logged</p>
+          <button
+            onClick={generateFingerprint}
+            disabled={fingerprintLoading || entries.length === 0}
+            className="profile-fingerprint-button"
+          >
+            {fingerprintLoading ? 'Generating...' : 'Generate taste profile'}
+          </button>
+          {fingerprint && <p className="profile-fingerprint-text">{fingerprint}</p>}
+          {fingerprintError && <p className="profile-fingerprint-error">{fingerprintError}</p>}
         </div>
 
         <button onClick={signOut} className="profile-signout">Log out</button>
