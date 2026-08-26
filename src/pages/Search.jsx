@@ -46,10 +46,28 @@ export default function Search() {
     }
   }
 
+  // Phase 3: fires after a TMDB entry is saved, fills genres/director/cast/country/language
+  async function fetchTMDBDetails(entryId, tmdbId, mediaType) {
+    try {
+      const res = await fetch(`/api/tmdb-details?media_type=${mediaType}&id=${tmdbId}`)
+      if (!res.ok) throw new Error('TMDB detail fetch failed')
+      const data = await res.json()
+      const { genres, director, cast_members, country, language } = data
+      await supabase
+        .from('watched_entries')
+        .update({ genres, director, cast_members, country, language })
+        .eq('id', entryId)
+    } catch (err) {
+      // Silently fail, no retry, fields stay null
+      console.error('TMDB detail fetch failed:', err)
+    }
+  }
+
   async function handleAdd(item) {
     const key = `${item.source}-${item.external_id}`
     const yearValue = Number(item.year)
-    const { error } = await supabase.from('watched_entries').insert({
+
+    const insertData = {
       user_id: user.id,
       media_type: item.media_type,
       source: item.source,
@@ -58,8 +76,33 @@ export default function Search() {
       poster_url: item.poster_url || null,
       year: Number.isFinite(yearValue) ? yearValue : null,
       watched_date: new Date().toISOString().slice(0, 10),
-    })
-    if (!error) setAddedIds((prev) => new Set(prev).add(key))
+    }
+
+    // AniList already returns genres/director/country/language in the search response
+    if (item.source === 'anilist') {
+      insertData.genres = item.genres || null
+      insertData.director = item.director || null
+      insertData.cast_members = item.cast_members || null
+      insertData.country = item.country || null
+      insertData.language = item.language || null
+    }
+
+    const { data, error } = await supabase
+      .from('watched_entries')
+      .insert(insertData)
+      .select('id')
+
+    if (error) {
+      console.error('Insert error:', error)
+      return
+    }
+
+    setAddedIds((prev) => new Set(prev).add(key))
+
+    // TMDB entries need a follow-up detail fetch, fired async, not blocking the add
+    if (item.source === 'tmdb' && data && data.length > 0) {
+      fetchTMDBDetails(data[0].id, item.external_id, item.media_type)
+    }
   }
 
   const showingResults = query.trim().length > 0

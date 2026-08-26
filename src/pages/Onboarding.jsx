@@ -68,11 +68,27 @@ export default function Onboarding() {
     })
   }
 
+  // Phase 3: fires after a TMDB entry is saved, fills genres/director/cast/country/language
+  async function fetchTMDBDetails(entryId, tmdbId, mediaType) {
+    try {
+      const res = await fetch(`/api/tmdb-details?media_type=${mediaType}&id=${tmdbId}`)
+      if (!res.ok) throw new Error('TMDB detail fetch failed')
+      const data = await res.json()
+      const { genres, director, cast_members, country, language } = data
+      await supabase
+        .from('watched_entries')
+        .update({ genres, director, cast_members, country, language })
+        .eq('id', entryId)
+    } catch (err) {
+      console.error('TMDB detail fetch failed:', err)
+    }
+  }
+
   async function handleFinish() {
     setSaving(true)
     const rows = selected.map((item) => {
       const yearValue = Number(item.year)
-      return {
+      const row = {
         user_id: user.id,
         media_type: item.media_type,
         source: item.source,
@@ -83,14 +99,36 @@ export default function Onboarding() {
         watched_date: new Date().toISOString().slice(0, 10),
         rating: 10,
       }
+      if (item.source === 'anilist') {
+        row.genres = item.genres || null
+        row.director = item.director || null
+        row.cast_members = item.cast_members || null
+        row.country = item.country || null
+        row.language = item.language || null
+      }
+      return row
     })
-    const { error } = await supabase.from('watched_entries').insert(rows)
+
+    const { data, error } = await supabase
+      .from('watched_entries')
+      .insert(rows)
+      .select('id, source, external_id, media_type')
+
     setSaving(false)
-    if (!error) {
-      navigate('/')
-    } else {
+    if (error) {
       setError(error.message)
+      return
     }
+
+    if (data) {
+      data.forEach((entry) => {
+        if (entry.source === 'tmdb') {
+          fetchTMDBDetails(entry.id, entry.external_id, entry.media_type)
+        }
+      })
+    }
+
+    navigate('/')
   }
 
   function handleSkip() {
