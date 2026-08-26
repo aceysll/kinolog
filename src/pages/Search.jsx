@@ -47,19 +47,27 @@ export default function Search() {
   }
 
   // Phase 3: fires after a TMDB entry is saved, fills genres/director/cast/country/language
+  // TEMP DEBUG: alerts added to trace the failure point, remove once fixed
   async function fetchTMDBDetails(entryId, tmdbId, mediaType) {
+    alert(`DEBUG: fetchTMDBDetails called. entryId=${entryId}, tmdbId=${tmdbId}, mediaType=${mediaType}`)
     try {
       const res = await fetch(`/api/tmdb-details?media_type=${mediaType}&id=${tmdbId}`)
+      alert(`DEBUG: fetch status=${res.status}, ok=${res.ok}`)
       if (!res.ok) throw new Error('TMDB detail fetch failed')
       const data = await res.json()
+      alert(`DEBUG: data received. director=${data.director}, genres=${JSON.stringify(data.genres)}`)
       const { genres, director, cast_members, country, language } = data
-      await supabase
+      const { error: updateError } = await supabase
         .from('watched_entries')
         .update({ genres, director, cast_members, country, language })
         .eq('id', entryId)
+      if (updateError) {
+        alert(`DEBUG: Supabase update error: ${updateError.message}`)
+      } else {
+        alert('DEBUG: Supabase update succeeded')
+      }
     } catch (err) {
-      // Silently fail, no retry, fields stay null
-      console.error('TMDB detail fetch failed:', err)
+      alert(`DEBUG: caught error: ${err.message}`)
     }
   }
 
