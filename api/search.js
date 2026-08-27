@@ -183,6 +183,16 @@ async function searchAniList(query) {
               }
             }
           }
+          characters(sort: [ROLE, RELEVANCE], perPage: 8) {
+            edges {
+              role
+              voiceActors(language: JAPANESE) {
+                name {
+                  full
+                }
+              }
+            }
+          }
           countryOfOrigin
         }
       }
@@ -216,6 +226,18 @@ async function searchAniList(query) {
       }
     }
 
+    // Backlog: anime cast, Japanese voice actors, top 5, main characters first
+    // (query already sorts by ROLE so MAIN comes before SUPPORTING/BACKGROUND)
+    const castMembers = []
+    const characterEdges = item.characters?.edges || []
+    for (const edge of characterEdges) {
+      const va = edge.voiceActors?.[0]?.name?.full
+      if (va && !castMembers.includes(va)) {
+        castMembers.push(va)
+      }
+      if (castMembers.length >= 5) break
+    }
+
     return {
       source: 'anilist',
       external_id: String(item.id),
@@ -228,7 +250,7 @@ async function searchAniList(query) {
       // Phase 3 fields
       genres: item.genres || [],
       director,
-      cast_members: null, // skipped for anime, dub language ambiguity, revisit later
+      cast_members: castMembers.length > 0 ? castMembers : null,
       country: item.countryOfOrigin || null,
       language: 'ja',
     }
