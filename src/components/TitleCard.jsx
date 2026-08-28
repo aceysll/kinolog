@@ -10,7 +10,7 @@ const BADGE_DOT = {
 }
 
 export function TitleCard({ item, added, onAdd }) {
-  const [showListModal, setShowListModal] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   return (
     <div className="tc-card">
@@ -24,13 +24,6 @@ export function TitleCard({ item, added, onAdd }) {
           <span className="tc-badge-dot" style={{ backgroundColor: BADGE_DOT[item.media_type] || theme.colors.slate }} />
           {item.media_type}
         </span>
-        <button
-          className="tc-list-button"
-          onClick={() => setShowListModal(true)}
-          aria-label="Add to list"
-        >
-          +
-        </button>
       </div>
       <p className="tc-title">{item.title}</p>
       <p className="tc-meta">{item.year || '—'}</p>
@@ -38,15 +31,19 @@ export function TitleCard({ item, added, onAdd }) {
         <div className="tc-upcoming">Not released yet</div>
       ) : (
         <button
-          onClick={() => onAdd(item)}
-          disabled={added}
+          onClick={() => setShowModal(true)}
           className={added ? 'tc-added-button' : 'tc-add-button'}
         >
-          {added ? 'Added' : 'Add to watched'}
+          {added ? 'Added' : 'Add to...'}
         </button>
       )}
-      {showListModal && (
-        <AddToListModal title={item} onClose={() => setShowListModal(false)} />
+      {showModal && (
+        <AddToListModal
+          title={item}
+          added={added}
+          onAddWatched={onAdd}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </div>
   )

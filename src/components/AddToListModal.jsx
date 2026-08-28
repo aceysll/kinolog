@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import './AddToListModal.css';
 
-export default function AddToListModal({ title, onClose }) {
+export default function AddToListModal({ title, added, onAddWatched, onClose }) {
   const [lists, setLists] = useState([]);
   const [memberListIds, setMemberListIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -123,15 +123,27 @@ export default function AddToListModal({ title, onClose }) {
     <div className="atl-overlay" onClick={onClose}>
       <div className="atl-modal" onClick={(e) => e.stopPropagation()}>
         <div className="atl-header">
-          <span className="atl-title">Add to list</span>
+          <span className="atl-title">Add to</span>
           <button className="atl-close" onClick={onClose}>×</button>
         </div>
 
         {loading ? (
-          <div className="atl-loading">Loading lists...</div>
+          <div className="atl-loading">Loading...</div>
         ) : (
           <>
             <div className="atl-list-items">
+              <label className="atl-list-row atl-watched-row">
+                <input
+                  type="checkbox"
+                  checked={added}
+                  disabled={added}
+                  onChange={() => !added && onAddWatched(title)}
+                />
+                <span>{added ? 'Watched' : 'Add to Watched'}</span>
+              </label>
+
+              <div className="atl-divider" />
+
               {lists.length === 0 && (
                 <div className="atl-empty">No lists yet, create one below.</div>
               )}
@@ -159,6 +171,8 @@ export default function AddToListModal({ title, onClose }) {
                 {creating ? '...' : 'Create'}
               </button>
             </div>
+
+            <button className="atl-done-button" onClick={onClose}>Done</button>
           </>
         )}
       </div>

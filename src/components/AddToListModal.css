@@ -77,6 +77,17 @@
   accent-color: var(--amber);
 }
 
+.atl-watched-row {
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.atl-divider {
+  height: 1px;
+  background-color: rgba(242,239,233,0.1);
+  margin: 4px 0 8px 0;
+}
+
 .atl-create {
   display: flex;
   gap: 8px;
@@ -112,4 +123,20 @@
 .atl-create button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.atl-done-button {
+  margin-top: 12px;
+  width: 100%;
+  background-color: var(--slate);
+  color: var(--screenGlow);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
 }
