@@ -12,8 +12,12 @@ export default async function handler(req, res) {
       searchPerson(q),
     ])
 
+    const merged = [...tmdbResults, ...anilistResults].sort(
+      (a, b) => (b.popularity || 0) - (a.popularity || 0)
+    )
+
     res.status(200).json({
-      results: [...tmdbResults, ...anilistResults],
+      results: merged,
       person: personResult,
     })
   } catch (err) {
@@ -63,6 +67,7 @@ async function searchTMDB(query) {
           ? `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`
           : null,
         upcoming: releaseDateRaw ? new Date(releaseDateRaw) > now : false,
+        popularity: item.popularity || 0,
         // Phase 3 fields: filled later via /api/tmdb-details after insert, left null here
         genres: null,
         director: null,
@@ -173,6 +178,7 @@ async function searchAniList(query) {
           }
           bannerImage
           genres
+          popularity
           staff(sort: RELEVANCE, perPage: 5) {
             edges {
               role
@@ -247,6 +253,9 @@ async function searchAniList(query) {
       poster_url: item.coverImage?.medium || null,
       backdrop_url: item.bannerImage || null,
       upcoming: item.status === 'NOT_YET_RELEASED',
+      // AniList popularity is a raw favorites/user count, much larger scale than
+      // TMDB's popularity score, normalize down so it merges reasonably with TMDB items
+      popularity: item.popularity ? item.popularity / 100 : 0,
       // Phase 3 fields
       genres: item.genres || [],
       director,
