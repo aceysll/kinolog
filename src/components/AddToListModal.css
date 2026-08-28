@@ -5,7 +5,9 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
+  padding-bottom: 70px;
+  box-sizing: border-box;
 }
 
 .atl-modal {
@@ -14,11 +16,12 @@
   max-width: 480px;
   border-radius: 16px 16px 0 0;
   padding: 20px;
-  max-height: 70vh;
+  max-height: min(70dvh, 70vh);
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(242,239,233,0.06);
   box-shadow: 0 -4px 14px rgba(0,0,0,0.35);
+  box-sizing: border-box;
 }
 
 .atl-header {
