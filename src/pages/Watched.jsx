@@ -19,7 +19,7 @@ const SORTS = [
   { key: 'rating', label: 'Highest rated' },
 ]
 
-const BADGE_COLORS = {
+const BADGE_DOT = {
   movie: theme.colors.projectorAmber,
   tv: theme.colors.velvetRed,
   anime: theme.colors.animeTeal,
@@ -158,10 +158,11 @@ export default function Watched() {
                 ) : (
                   <div className="watched-poster-fallback">No image</div>
                 )}
-                <span
-                  className="watched-badge"
-                  style={{ backgroundColor: BADGE_COLORS[entry.media_type] || theme.colors.slate }}
-                >
+                <span className="watched-badge">
+                  <span
+                    className="watched-badge-dot"
+                    style={{ backgroundColor: BADGE_DOT[entry.media_type] || theme.colors.slate }}
+                  />
                   {entry.media_type}
                 </span>
               </div>
