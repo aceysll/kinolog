@@ -157,13 +157,15 @@ export default function Profile() {
             </div>
           </Link>
 
-          <div className="profile-nav-card disabled">
-            <FolderIcon />
-            <div>
-              <p className="profile-nav-title">Lists</p>
-              <p className="profile-nav-subtitle">Coming soon</p>
+          <Link to="/lists" className="profile-nav-link">
+            <div className="profile-nav-card">
+              <FolderIcon />
+              <div>
+                <p className="profile-nav-title">Lists</p>
+                <p className="profile-nav-subtitle">Curate watchlists and collections</p>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         <div className="sprocket-divider" />

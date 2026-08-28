@@ -1,0 +1,132 @@
+.lists-page {
+  min-height: 100vh;
+  background-color: var(--charcoal);
+  font-family: var(--font-body);
+  padding-bottom: 80px;
+}
+
+.lists-content {
+  padding: 20px 16px;
+}
+
+.lists-title {
+  font-family: var(--font-display);
+  color: var(--screenGlow);
+  font-size: 28px;
+  margin: 0;
+}
+
+.lists-subtitle {
+  font-family: var(--font-mono);
+  color: var(--slate);
+  font-size: 12px;
+  margin: 4px 0 0 0;
+}
+
+.lists-create-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.lists-create-input {
+  flex: 1;
+  background-color: var(--cardBg);
+  border: 1px solid rgba(242,239,233,0.12);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--screenGlow);
+  font-size: 14px;
+  font-family: var(--font-body);
+}
+
+.lists-create-button {
+  background-color: var(--amber);
+  color: var(--charcoal);
+  border: none;
+  border-radius: 8px;
+  padding: 0 18px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+
+.lists-create-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.lists-status {
+  font-family: var(--font-mono);
+  color: var(--slate);
+  font-size: 13px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.lists-error {
+  font-family: var(--font-mono);
+  color: var(--velvetRed);
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.lists-card-link {
+  text-decoration: none;
+}
+
+.lists-card {
+  background-color: var(--cardBg);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid rgba(242,239,233,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+
+.lists-card-posters {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  border-radius: 6px;
+  overflow: hidden;
+  aspect-ratio: 2 / 1.4;
+  margin-bottom: 8px;
+}
+
+.lists-card-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lists-card-poster-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--slate);
+}
+
+.lists-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--screenGlow);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.lists-card-count {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--slate);
+  margin: 4px 0 0 0;
+}

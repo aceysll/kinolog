@@ -9,6 +9,8 @@ import Onboarding from './pages/Onboarding'
 import Profile from './pages/Profile'
 import Watched from './pages/Watched'
 import Stats from './pages/Stats'
+import Lists from './pages/Lists'
+import ListDetail from './pages/ListDetail'
 
 export default function App() {
   return (
@@ -62,6 +64,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Stats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lists"
+            element={
+              <ProtectedRoute>
+                <Lists />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lists/:id"
+            element={
+              <ProtectedRoute>
+                <ListDetail />
               </ProtectedRoute>
             }
           />
