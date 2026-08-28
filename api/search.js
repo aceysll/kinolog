@@ -6,10 +6,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [tmdbResults, anilistResults, personResult] = await Promise.all([
+    const [tmdbResults, anilistResults, personResult, collectionResult] = await Promise.all([
       searchTMDB(q),
       searchAniList(q),
       searchPerson(q),
+      searchCollection(q),
     ])
 
     const merged = [...tmdbResults, ...anilistResults].sort(
@@ -19,6 +20,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       results: merged,
       person: personResult,
+      collection: collectionResult,
     })
   } catch (err) {
     res.status(500).json({ error: 'Search failed', details: err.message })
@@ -68,7 +70,6 @@ async function searchTMDB(query) {
           : null,
         upcoming: releaseDateRaw ? new Date(releaseDateRaw) > now : false,
         popularity: item.popularity || 0,
-        // Phase 3 fields: filled later via /api/tmdb-details after insert, left null here
         genres: null,
         director: null,
         cast_members: null,
@@ -78,8 +79,6 @@ async function searchTMDB(query) {
     })
 }
 
-// Backlog: director/person search. TMDB's search/multi only text-matches titles,
-// so a name search needs its own lookup, then two credit calls filtered to Director.
 async function searchPerson(query) {
   const searchRes = await fetch(
     `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}`,
@@ -97,8 +96,6 @@ async function searchPerson(query) {
   if (candidates.length === 0) return null
 
   const top = candidates[0]
-  // Confidence threshold: skip low-popularity coincidental name matches,
-  // e.g. someone typing a common word that happens to match an obscure person
   const isLikelyMatch = top.popularity > 5 || top.known_for_department === 'Directing'
   if (!isLikelyMatch) return null
 
@@ -155,6 +152,35 @@ async function searchPerson(query) {
     name: top.name,
     profile_url: top.profile_path ? `https://image.tmdb.org/t/p/w185${top.profile_path}` : null,
     filmography,
+  }
+}
+
+// Phase 5: franchise search via TMDB's collection endpoint. Returns the
+// single best-matching collection, the Franchise page fetches its full
+// entry list separately via api/collection.js.
+async function searchCollection(query) {
+  const searchRes = await fetch(
+    `https://api.themoviedb.org/3/search/collection?query=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+        Accept: 'application/json',
+      },
+    }
+  )
+  if (!searchRes.ok) return null
+
+  const searchData = await searchRes.json()
+  const candidates = searchData.results || []
+  if (candidates.length === 0) return null
+
+  const top = candidates[0]
+
+  return {
+    id: top.id,
+    name: top.name,
+    poster_url: top.poster_path ? `https://image.tmdb.org/t/p/w342${top.poster_path}` : null,
+    backdrop_url: top.backdrop_path ? `https://image.tmdb.org/t/p/w1280${top.backdrop_path}` : null,
   }
 }
 
@@ -232,8 +258,6 @@ async function searchAniList(query) {
       }
     }
 
-    // Backlog: anime cast, Japanese voice actors, top 5, main characters first
-    // (query already sorts by ROLE so MAIN comes before SUPPORTING/BACKGROUND)
     const castMembers = []
     const characterEdges = item.characters?.edges || []
     for (const edge of characterEdges) {
@@ -253,10 +277,7 @@ async function searchAniList(query) {
       poster_url: item.coverImage?.medium || null,
       backdrop_url: item.bannerImage || null,
       upcoming: item.status === 'NOT_YET_RELEASED',
-      // AniList popularity is a raw favorites/user count, much larger scale than
-      // TMDB's popularity score, normalize down so it merges reasonably with TMDB items
       popularity: item.popularity ? item.popularity / 100 : 0,
-      // Phase 3 fields
       genres: item.genres || [],
       director,
       cast_members: castMembers.length > 0 ? castMembers : null,

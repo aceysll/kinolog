@@ -218,3 +218,20 @@
   letter-spacing: 0.3px;
   cursor: pointer;
 }
+.watched-franchise-link {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 2px 0 6px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  color: var(--amber);
+  cursor: pointer;
+  text-align: left;
+}
+
+.watched-franchise-link:hover {
+  text-decoration: underline;
+}

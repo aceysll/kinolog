@@ -21,6 +21,8 @@ export default async function handler(req, res) {
     let castMembers = []
     let country = null
     const language = data.original_language || null
+    let collectionId = null
+    let collectionName = null
 
     if (media_type === 'movie') {
       const crew = data.credits?.crew || []
@@ -29,6 +31,13 @@ export default async function handler(req, res) {
       const sortedCast = (data.credits?.cast || []).sort((a, b) => a.order - b.order)
       castMembers = sortedCast.slice(0, 5).map((c) => c.name)
       country = data.production_countries?.[0]?.iso_3166_1 || null
+
+      // Phase 5: belongs_to_collection only exists on the movie details endpoint,
+      // TV has no equivalent concept on TMDB, so collection stays null for TV.
+      if (data.belongs_to_collection) {
+        collectionId = data.belongs_to_collection.id
+        collectionName = data.belongs_to_collection.name
+      }
     } else if (media_type === 'tv') {
       director = data.created_by?.[0]?.name || null
       const sortedCast = (data.credits?.cast || []).sort((a, b) => a.order - b.order)
@@ -42,6 +51,8 @@ export default async function handler(req, res) {
       cast_members: castMembers,
       country,
       language,
+      collection_id: collectionId,
+      collection_name: collectionName,
     })
   } catch (err) {
     console.error(err)

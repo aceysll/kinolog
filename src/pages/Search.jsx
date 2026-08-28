@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { TitleCard } from '../components/TitleCard'
@@ -14,7 +15,9 @@ export default function Search() {
   const [error, setError] = useState('')
   const [addedIds, setAddedIds] = useState(new Set())
   const [personResult, setPersonResult] = useState(null)
+  const [collectionResult, setCollectionResult] = useState(null)
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetch('/api/trending')
@@ -23,8 +26,6 @@ export default function Search() {
       .catch(() => setTrending([]))
   }, [])
 
-  // Phase 3 backlog: mark titles already in the user's library as added on load,
-  // not just ones added this session
   useEffect(() => {
     if (!user) return
     const fetchExisting = async () => {
@@ -44,6 +45,7 @@ export default function Search() {
     if (!query.trim()) {
       setResults([])
       setPersonResult(null)
+      setCollectionResult(null)
       return
     }
     const timeout = setTimeout(() => runSearch(query), 400)
@@ -59,6 +61,7 @@ export default function Search() {
       if (!res.ok) throw new Error(data.error || 'Search failed')
       setResults(data.results)
       setPersonResult(data.person || null)
+      setCollectionResult(data.collection || null)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -67,18 +70,26 @@ export default function Search() {
   }
 
   // Phase 3: fires after a TMDB entry is saved, fills genres/director/cast/country/language
+  // Phase 5: also fills collection_id/collection_name when the title belongs to a franchise
   async function fetchTMDBDetails(entryId, tmdbId, mediaType) {
     try {
       const res = await fetch(`/api/tmdb-details?media_type=${mediaType}&id=${tmdbId}`)
       if (!res.ok) throw new Error('TMDB detail fetch failed')
       const data = await res.json()
-      const { genres, director, cast_members, country, language } = data
+      const { genres, director, cast_members, country, language, collection_id, collection_name } = data
       await supabase
         .from('watched_entries')
-        .update({ genres, director, cast_members, country, language })
+        .update({
+          genres,
+          director,
+          cast_members,
+          country,
+          language,
+          collection_id,
+          collection_name,
+        })
         .eq('id', entryId)
     } catch (err) {
-      // Silently fail, no retry, fields stay null
       console.error('TMDB detail fetch failed:', err)
     }
   }
@@ -98,7 +109,6 @@ export default function Search() {
       watched_date: new Date().toISOString().slice(0, 10),
     }
 
-    // AniList already returns genres/director/country/language in the search response
     if (item.source === 'anilist') {
       insertData.genres = item.genres || null
       insertData.director = item.director || null
@@ -119,7 +129,6 @@ export default function Search() {
 
     setAddedIds((prev) => new Set(prev).add(key))
 
-    // TMDB entries need a follow-up detail fetch, fired async, not blocking the add
     if (item.source === 'tmdb' && data && data.length > 0) {
       fetchTMDBDetails(data[0].id, item.external_id, item.media_type)
     }
@@ -162,7 +171,7 @@ export default function Search() {
         <div className="search-input-wrap">
           <input
             type="text"
-            placeholder="A title, a director, a mood..."
+            placeholder="A title, a director, a franchise..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="search-input"
@@ -182,6 +191,25 @@ export default function Search() {
 
         {loading && <p className="search-status">Searching...</p>}
         {error && <p className="search-error">{error}</p>}
+
+        {collectionResult && (
+          <div
+            className="search-collection-banner"
+            onClick={() => navigate(`/franchise/${collectionResult.id}`)}
+          >
+            {collectionResult.poster_url && (
+              <img
+                src={collectionResult.poster_url}
+                alt={collectionResult.name}
+                className="search-collection-poster"
+              />
+            )}
+            <div className="search-collection-info">
+              <p className="search-collection-eyebrow">Franchise</p>
+              <p className="search-collection-name">{collectionResult.name}</p>
+            </div>
+          </div>
+        )}
 
         {personResult && (
           <div className="search-person-section">

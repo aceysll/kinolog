@@ -151,3 +151,50 @@
   justify-content: center;
   padding: 0;
 }
+.search-collection-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(242,239,233,0.1);
+  background-color: rgba(28,30,36,0.85);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.search-collection-banner:hover {
+  border-color: var(--amber);
+}
+
+.search-collection-poster {
+  width: 46px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.search-collection-info {
+  min-width: 0;
+}
+
+.search-collection-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 4px 0;
+}
+
+.search-collection-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--screenGlow);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

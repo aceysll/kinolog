@@ -11,6 +11,7 @@ import Watched from './pages/Watched'
 import Stats from './pages/Stats'
 import Lists from './pages/Lists'
 import ListDetail from './pages/ListDetail'
+import Franchise from './pages/Franchise'
 
 export default function App() {
   return (
@@ -80,6 +81,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ListDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/franchise/:id"
+            element={
+              <ProtectedRoute>
+                <Franchise />
               </ProtectedRoute>
             }
           />

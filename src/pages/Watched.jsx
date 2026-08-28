@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { BottomNav } from '../components/BottomNav'
@@ -53,6 +54,7 @@ export default function Watched() {
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('recent')
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
     loadEntries()
@@ -167,6 +169,14 @@ export default function Watched() {
               <div className="watched-row-info">
                 <p className="watched-row-title">{entry.title}</p>
                 <p className="watched-row-date">{entry.watched_date}</p>
+                {entry.collection_id && (
+                  <button
+                    className="watched-franchise-link"
+                    onClick={() => navigate(`/franchise/${entry.collection_id}`)}
+                  >
+                    {entry.collection_name || 'Part of a franchise'}
+                  </button>
+                )}
                 <StarRating
                   value={entry.rating}
                   onChange={(rating) => handleRatingChange(entry.id, rating)}
