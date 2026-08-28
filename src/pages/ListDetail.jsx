@@ -6,7 +6,7 @@ import { BottomNav } from '../components/BottomNav'
 import { theme } from '../theme'
 import './ListDetail.css'
 
-const BADGE_COLORS = {
+const BADGE_DOT = {
   movie: theme.colors.projectorAmber,
   tv: theme.colors.velvetRed,
   anime: theme.colors.animeTeal,
@@ -172,10 +172,11 @@ export default function ListDetail() {
                 ) : (
                   <div className="listdetail-poster-fallback">No image</div>
                 )}
-                <span
-                  className="listdetail-badge"
-                  style={{ backgroundColor: BADGE_COLORS[item.media_type] || theme.colors.slate }}
-                >
+                <span className="listdetail-badge">
+                  <span
+                    className="listdetail-badge-dot"
+                    style={{ backgroundColor: BADGE_DOT[item.media_type] || theme.colors.slate }}
+                  />
                   {item.media_type}
                 </span>
               </div>
