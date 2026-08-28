@@ -159,14 +159,26 @@ export default function Search() {
 
         <div className="sprocket-divider" />
 
-        <input
-          type="text"
-          placeholder="A title, a director, a mood..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="search-input"
-          autoFocus
-        />
+        <div className="search-input-wrap">
+          <input
+            type="text"
+            placeholder="A title, a director, a mood..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="search-input"
+            autoFocus
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="search-input-clear"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
 
         {loading && <p className="search-status">Searching...</p>}
         {error && <p className="search-error">{error}</p>}

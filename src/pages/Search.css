@@ -121,3 +121,33 @@
   color: var(--screenGlow);
   margin: 0;
 }
+
+.search-input-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-input-wrap .search-input {
+  margin-bottom: 0;
+  padding-right: 44px;
+}
+
+.search-input-clear {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(242,239,233,0.1);
+  color: var(--screenGlow);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
