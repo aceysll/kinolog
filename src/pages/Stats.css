@@ -228,3 +228,7 @@
   font-size: 12px;
   flex-shrink: 0;
 }
+
+.stats-row-label {
+  text-transform: capitalize;
+}

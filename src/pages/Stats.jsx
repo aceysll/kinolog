@@ -68,8 +68,9 @@ const Stats = () => {
   });
   const maxStarCount = Math.max(...starCounts, 1);
 
-  const totalRatingSum = entries.reduce((sum, e) => sum + (e.rating || 0), 0);
-  const avgStars = entries.length > 0 ? (totalRatingSum / entries.length) / 2 : 0;
+  const ratedEntries = entries.filter(e => e.rating != null);
+  const totalRatingSum = ratedEntries.reduce((sum, e) => sum + e.rating, 0);
+  const avgStars = ratedEntries.length > 0 ? (totalRatingSum / ratedEntries.length) / 2 : 0;
 
   const now = new Date();
   const monthLabels = [];
