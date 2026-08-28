@@ -1,0 +1,112 @@
+.atl-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.atl-modal {
+  background-color: var(--cardBg);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px 16px 0 0;
+  padding: 20px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(242,239,233,0.06);
+  box-shadow: 0 -4px 14px rgba(0,0,0,0.35);
+}
+
+.atl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.atl-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--screenGlow);
+}
+
+.atl-close {
+  background: none;
+  border: none;
+  color: var(--slate);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.atl-loading, .atl-empty {
+  color: var(--slate);
+  padding: 16px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+}
+
+.atl-list-items {
+  overflow-y: auto;
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+.atl-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  color: var(--screenGlow);
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(242,239,233,0.06);
+}
+
+.atl-list-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--amber);
+}
+
+.atl-create {
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(242,239,233,0.08);
+}
+
+.atl-create input {
+  flex: 1;
+  background-color: var(--charcoal);
+  border: 1px solid rgba(242,239,233,0.12);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--screenGlow);
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+}
+
+.atl-create button {
+  background-color: var(--amber);
+  color: var(--charcoal);
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+
+.atl-create button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { theme } from '../theme'
+import AddToListModal from './AddToListModal'
 import './TitleCard.css'
 
 const BADGE_DOT = {
@@ -8,6 +10,8 @@ const BADGE_DOT = {
 }
 
 export function TitleCard({ item, added, onAdd }) {
+  const [showListModal, setShowListModal] = useState(false)
+
   return (
     <div className="tc-card">
       <div className="tc-poster-wrap">
@@ -20,6 +24,13 @@ export function TitleCard({ item, added, onAdd }) {
           <span className="tc-badge-dot" style={{ backgroundColor: BADGE_DOT[item.media_type] || theme.colors.slate }} />
           {item.media_type}
         </span>
+        <button
+          className="tc-list-button"
+          onClick={() => setShowListModal(true)}
+          aria-label="Add to list"
+        >
+          +
+        </button>
       </div>
       <p className="tc-title">{item.title}</p>
       <p className="tc-meta">{item.year || '—'}</p>
@@ -33,6 +44,9 @@ export function TitleCard({ item, added, onAdd }) {
         >
           {added ? 'Added' : 'Add to watched'}
         </button>
+      )}
+      {showListModal && (
+        <AddToListModal title={item} onClose={() => setShowListModal(false)} />
       )}
     </div>
   )
