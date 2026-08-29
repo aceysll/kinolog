@@ -19,12 +19,11 @@ function SearchIcon({ active }) {
   )
 }
 
-function StatsIcon({ active }) {
+function CompassIcon({ active }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? theme.colors.projectorAmber : theme.colors.slate} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="20" x2="18" y2="10" />
-      <line x1="12" y1="20" x2="12" y2="4" />
-      <line x1="6" y1="20" x2="6" y2="14" />
+      <circle cx="12" cy="12" r="9" />
+      <polygon points="16 8 13.5 13.5 8 16 10.5 10.5 16 8" />
     </svg>
   )
 }
@@ -41,7 +40,7 @@ function ProfileIcon({ active }) {
 const TABS = [
   { path: '/', label: 'Home', Icon: HomeIcon },
   { path: '/search', label: 'Search', Icon: SearchIcon },
-  { path: '/stats', label: 'Stats', Icon: StatsIcon },
+  { path: '/discover', label: 'Discover', Icon: CompassIcon },
   { path: '/profile', label: 'Profile', Icon: ProfileIcon },
 ]
 

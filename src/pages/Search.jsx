@@ -19,7 +19,6 @@ export default function Search() {
   const [error, setError] = useState('')
   const [addedIds, setAddedIds] = useState(new Set())
   const [personResult, setPersonResult] = useState(null)
-  const [collectionResults, setCollectionResults] = useState([])
   const { user } = useAuth()
   const navigate = useNavigate()
   // Race condition guard: if the user types fast, a slower earlier request
@@ -53,7 +52,6 @@ export default function Search() {
     if (!query.trim()) {
       setResults([])
       setPersonResult(null)
-      setCollectionResults([])
       setSearchParams({}, { replace: true })
       return
     }
@@ -76,7 +74,6 @@ export default function Search() {
       if (requestId !== latestRequestId.current) return
       setResults(data.results)
       setPersonResult(data.person || null)
-      setCollectionResults(data.collections || [])
     } catch (err) {
       if (requestId !== latestRequestId.current) return
       setError(err.message)
@@ -189,7 +186,7 @@ export default function Search() {
         <div className="search-input-wrap">
           <input
             type="text"
-            placeholder="A title, a director, a franchise..."
+            placeholder="A title, a director..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="search-input"
@@ -209,30 +206,6 @@ export default function Search() {
 
         {loading && <p className="search-status">Searching...</p>}
         {error && <p className="search-error">{error}</p>}
-
-        {collectionResults.length > 0 && (
-          <div className="search-collection-list">
-            {collectionResults.map((c) => (
-              <div
-                key={c.id}
-                className="search-collection-banner"
-                onClick={() => navigate(`/franchise/${c.id}`)}
-              >
-                {c.poster_url && (
-                  <img
-                    src={c.poster_url}
-                    alt={c.name}
-                    className="search-collection-poster"
-                  />
-                )}
-                <div className="search-collection-info">
-                  <p className="search-collection-eyebrow">Franchise</p>
-                  <p className="search-collection-name">{c.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {personResult && (
           <div className="search-person-section">

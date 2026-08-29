@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Home from './pages/Home'
 import Search from './pages/Search'
+import Discover from './pages/Discover'
 import Onboarding from './pages/Onboarding'
 import Profile from './pages/Profile'
 import Watched from './pages/Watched'
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Search />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/discover"
+            element={
+              <ProtectedRoute>
+                <Discover />
               </ProtectedRoute>
             }
           />

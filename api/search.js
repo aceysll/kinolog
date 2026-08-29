@@ -6,11 +6,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [tmdbResults, anilistResults, personResult, collectionResults] = await Promise.all([
+    const [tmdbResults, anilistResults, personResult] = await Promise.all([
       searchTMDB(q),
       searchAniList(q),
       searchPerson(q),
-      searchCollection(q),
     ])
 
     // Relevance sort: raw popularity alone buried the actual "Fast and the
@@ -23,7 +22,6 @@ export default async function handler(req, res) {
     res.status(200).json({
       results: merged,
       person: personResult,
-      collections: collectionResults,
     })
   } catch (err) {
     res.status(500).json({ error: 'Search failed', details: err.message })
@@ -170,65 +168,6 @@ async function searchPerson(query) {
     profile_url: top.profile_path ? `https://image.tmdb.org/t/p/w185${top.profile_path}` : null,
     filmography,
   }
-}
-
-// Phase 5: franchise search via TMDB's collection endpoint. Returns the
-// top few matching collections, since a name like "spider-man" or "mcu"
-// can legitimately match several distinct collections (Raimi trilogy,
-// MCU collection, Amazing Spider-Man duology, etc). The Franchise page
-// fetches a given collection's full entry list separately via api/collection.js.
-// Phase 5: franchise search via TMDB's collection endpoint. Returns the
-// top few matching collections, since a name like "spider-man" or "mcu"
-// can legitimately match several distinct collections (Raimi trilogy,
-// MCU collection, Amazing Spider-Man duology, etc). The Franchise page
-// fetches a given collection's full entry list separately via api/collection.js.
-async function searchCollection(query) {
-  const searchRes = await fetch(
-    `https://api.themoviedb.org/3/search/collection?query=${encodeURIComponent(query)}&include_adult=false`,
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
-        Accept: 'application/json',
-      },
-    }
-  )
-  if (!searchRes.ok) return []
-
-  const searchData = await searchRes.json()
-  // TMDB's collection search results carry no adult flag at all, that field only
-  // exists on movie/tv objects. Pull a wider pool, check each candidate's actual
-  // movies for the adult flag, drop anything unsafe, then keep the top 4 safe ones.
-  const rawCandidates = (searchData.results || []).slice(0, 8)
-  if (rawCandidates.length === 0) return []
-
-  const details = await Promise.all(
-    rawCandidates.map((c) =>
-      fetch(`https://api.themoviedb.org/3/collection/${c.id}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
-          Accept: 'application/json',
-        },
-      })
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null)
-    )
-  )
-
-  const safeCandidates = rawCandidates.filter((c, i) => {
-    const d = details[i]
-    if (!d) return false
-    const parts = d.parts || []
-    if (parts.length === 0) return false
-    if (parts.some((p) => p.adult)) return false
-    return true
-  })
-
-  return safeCandidates.slice(0, 4).map((c) => ({
-    id: c.id,
-    name: c.name,
-    poster_url: c.poster_path ? `https://image.tmdb.org/t/p/w342${c.poster_path}` : null,
-    backdrop_url: c.backdrop_path ? `https://image.tmdb.org/t/p/w1280${c.backdrop_path}` : null,
-  }))
 }
 
 async function searchAniList(query) {
