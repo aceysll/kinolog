@@ -270,12 +270,14 @@ const Stats = () => {
             return (
               <div
                 key={actor.id ?? actor.name}
-                className="stats-row-people"
-                style={clickable ? { cursor: 'pointer' } : undefined}
+                className={`stats-row-people${clickable ? ' clickable' : ''}`}
                 onClick={clickable ? () => navigate(`/person/${actor.id}`) : undefined}
               >
                 <div className="stats-row-people-top">
-                  <span className="stats-row-people-name">{actor.name}</span>
+                  <span className={`stats-row-people-name${clickable ? ' stats-row-people-name-clickable' : ''}`}>
+                    {actor.name}
+                    {clickable && <span className="stats-row-people-chevron">›</span>}
+                  </span>
                   <span className="stats-row-people-count">{actor.count}</span>
                 </div>
                 <div className="stats-track-decade">
@@ -299,12 +301,14 @@ const Stats = () => {
             return (
               <div
                 key={director.id ?? director.name}
-                className="stats-row-people"
-                style={clickable ? { cursor: 'pointer' } : undefined}
+                className={`stats-row-people${clickable ? ' clickable' : ''}`}
                 onClick={clickable ? () => navigate(`/person/${director.id}`) : undefined}
               >
                 <div className="stats-row-people-top">
-                  <span className="stats-row-people-name">{director.name}</span>
+                  <span className={`stats-row-people-name${clickable ? ' stats-row-people-name-clickable' : ''}`}>
+                    {director.name}
+                    {clickable && <span className="stats-row-people-chevron">›</span>}
+                  </span>
                   <span className="stats-row-people-count">{director.count}</span>
                 </div>
                 <div className="stats-track-decade">

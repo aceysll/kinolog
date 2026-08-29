@@ -205,6 +205,20 @@
    since names run longer and wrap unlike the short fixed-width labels above */
 .stats-row-people {
   margin-bottom: 14px;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+
+/* Phase 6 polish: clickable rows need a real visual signal since cursor:pointer
+   is invisible on touch. Amber name color plus a chevron mirrors the affordance
+   used elsewhere in the app (Title Detail cast/crew links). Tap feedback via
+   :active substitutes for hover on mobile. */
+.stats-row-people.clickable {
+  cursor: pointer;
+}
+
+.stats-row-people.clickable:active {
+  opacity: 0.55;
 }
 
 .stats-row-people-top {
@@ -220,6 +234,17 @@
   font-family: var(--font-body);
   font-size: 13px;
   line-height: 1.3;
+}
+
+.stats-row-people-name-clickable {
+  color: var(--amber);
+}
+
+.stats-row-people-chevron {
+  color: var(--amber);
+  font-family: var(--font-mono);
+  margin-left: 3px;
+  font-size: 13px;
 }
 
 .stats-row-people-count {
