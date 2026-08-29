@@ -13,6 +13,7 @@ import Lists from './pages/Lists'
 import ListDetail from './pages/ListDetail'
 import Franchise from './pages/Franchise'
 import TitleDetail from './pages/TitleDetail'
+import PersonDetail from './pages/PersonDetail'
 
 export default function App() {
   return (
@@ -98,6 +99,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <TitleDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/person/:id"
+            element={
+              <ProtectedRoute>
+                <PersonDetail />
               </ProtectedRoute>
             }
           />

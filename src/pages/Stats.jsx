@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { theme } from '../theme';
 import { supabase } from '../lib/supabaseClient';
 import { BottomNav } from '../components/BottomNav';
@@ -8,6 +9,7 @@ const Stats = () => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const rootVars = {
     '--charcoal': theme.colors.charcoal,
@@ -107,28 +109,35 @@ const Stats = () => {
   const maxDecadeCount = Math.max(...decadeList.map(([, c]) => c), 1);
   const hasDecadeData = decadeList.length > 0;
 
-  // Phase 3: Top Actors, aggregated from cast_members arrays
-  const actorCounts = {};
+  // Phase 6: Top Actors, keyed by TMDB cast id when available so two people
+  // sharing a name don't get merged. Anime rows have no cast_ids (voice-actor
+  // id cross-referencing is a separate deferred item), so those still fall
+  // back to name-keying, same as before.
+  const actorMap = {};
   entries.forEach(e => {
-    if (Array.isArray(e.cast_members)) {
-      e.cast_members.forEach(name => {
-        actorCounts[name] = (actorCounts[name] || 0) + 1;
-      });
-    }
+    if (!Array.isArray(e.cast_members)) return;
+    e.cast_members.forEach((name, i) => {
+      const id = Array.isArray(e.cast_ids) ? e.cast_ids[i] : null;
+      const key = id != null ? `id:${id}` : `name:${name}`;
+      if (!actorMap[key]) actorMap[key] = { name, id: id ?? null, count: 0 };
+      actorMap[key].count += 1;
+    });
   });
-  const topActors = Object.entries(actorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const maxActorCount = Math.max(...topActors.map(([, c]) => c), 1);
+  const topActors = Object.values(actorMap).sort((a, b) => b.count - a.count).slice(0, 8);
+  const maxActorCount = Math.max(...topActors.map(a => a.count), 1);
   const hasActorData = topActors.length > 0;
 
-  // Phase 3: Top Directors, aggregated from director column
-  const directorCounts = {};
+  // Phase 6: Top Directors, same id-keying approach as actors above.
+  const directorMap = {};
   entries.forEach(e => {
-    if (e.director) {
-      directorCounts[e.director] = (directorCounts[e.director] || 0) + 1;
-    }
+    if (!e.director) return;
+    const id = e.director_id ?? null;
+    const key = id != null ? `id:${id}` : `name:${e.director}`;
+    if (!directorMap[key]) directorMap[key] = { name: e.director, id, count: 0 };
+    directorMap[key].count += 1;
   });
-  const topDirectors = Object.entries(directorCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const maxDirectorCount = Math.max(...topDirectors.map(([, c]) => c), 1);
+  const topDirectors = Object.values(directorMap).sort((a, b) => b.count - a.count).slice(0, 8);
+  const maxDirectorCount = Math.max(...topDirectors.map(d => d.count), 1);
   const hasDirectorData = topDirectors.length > 0;
 
   const TYPE_COLOR = {
@@ -255,13 +264,19 @@ const Stats = () => {
         <p className="stats-section-eyebrow">People</p>
         <h2 className="stats-section-title">Top Actors</h2>
         {hasActorData ? (
-          topActors.map(([name, count]) => {
-            const pct = (count / maxActorCount) * 100;
+          topActors.map((actor) => {
+            const pct = (actor.count / maxActorCount) * 100;
+            const clickable = actor.id != null;
             return (
-              <div key={name} className="stats-row-people">
+              <div
+                key={actor.id ?? actor.name}
+                className="stats-row-people"
+                style={clickable ? { cursor: 'pointer' } : undefined}
+                onClick={clickable ? () => navigate(`/person/${actor.id}`) : undefined}
+              >
                 <div className="stats-row-people-top">
-                  <span className="stats-row-people-name">{name}</span>
-                  <span className="stats-row-people-count">{count}</span>
+                  <span className="stats-row-people-name">{actor.name}</span>
+                  <span className="stats-row-people-count">{actor.count}</span>
                 </div>
                 <div className="stats-track-decade">
                   <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.projectorAmber }} />
@@ -278,13 +293,19 @@ const Stats = () => {
         <p className="stats-section-eyebrow">People</p>
         <h2 className="stats-section-title">Top Directors</h2>
         {hasDirectorData ? (
-          topDirectors.map(([name, count]) => {
-            const pct = (count / maxDirectorCount) * 100;
+          topDirectors.map((director) => {
+            const pct = (director.count / maxDirectorCount) * 100;
+            const clickable = director.id != null;
             return (
-              <div key={name} className="stats-row-people">
+              <div
+                key={director.id ?? director.name}
+                className="stats-row-people"
+                style={clickable ? { cursor: 'pointer' } : undefined}
+                onClick={clickable ? () => navigate(`/person/${director.id}`) : undefined}
+              >
                 <div className="stats-row-people-top">
-                  <span className="stats-row-people-name">{name}</span>
-                  <span className="stats-row-people-count">{count}</span>
+                  <span className="stats-row-people-name">{director.name}</span>
+                  <span className="stats-row-people-count">{director.count}</span>
                 </div>
                 <div className="stats-track-decade">
                   <div className="stats-fill" style={{ width: pct + '%', height: '100%', backgroundColor: theme.colors.velvetRed }} />

@@ -209,7 +209,15 @@ export default function TitleDetail() {
                 <p className="td-section-label">
                   {titleData.media_type === 'tv' || titleData.media_type === 'anime' ? 'Creator' : 'Director'}
                 </p>
-                <div className="td-person-row">
+                <div
+                  className="td-person-row"
+                  style={titleData.director.id && titleData.source === 'tmdb' ? { cursor: 'pointer' } : undefined}
+                  onClick={
+                    titleData.director.id && titleData.source === 'tmdb'
+                      ? () => navigate(`/person/${titleData.director.id}`)
+                      : undefined
+                  }
+                >
                   {titleData.director.profile_url ? (
                     <img
                       src={titleData.director.profile_url}
@@ -229,7 +237,16 @@ export default function TitleDetail() {
                 <p className="td-section-label">Cast</p>
                 <div className="td-cast-grid">
                   {titleData.cast.map((c, i) => (
-                    <div key={c.id ?? `${c.name}-${i}`} className="td-cast-item">
+                    <div
+                      key={c.id ?? `${c.name}-${i}`}
+                      className="td-cast-item"
+                      style={c.id && titleData.source === 'tmdb' ? { cursor: 'pointer' } : undefined}
+                      onClick={
+                        c.id && titleData.source === 'tmdb'
+                          ? () => navigate(`/person/${c.id}`)
+                          : undefined
+                      }
+                    >
                       {c.profile_url ? (
                         <img src={c.profile_url} alt={c.name} className="td-person-photo" />
                       ) : (
