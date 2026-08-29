@@ -13,8 +13,11 @@ export default async function handler(req, res) {
       searchCollection(q),
     ])
 
+    // Relevance sort: raw popularity alone buried the actual "Fast and the
+    // Furious" film behind sequels and same-named anime. Score title matches
+    // first (exact, starts-with, contains), use popularity only as a tiebreaker.
     const merged = [...tmdbResults, ...anilistResults].sort(
-      (a, b) => (b.popularity || 0) - (a.popularity || 0)
+      (a, b) => relevanceScore(b, q) - relevanceScore(a, q)
     )
 
     res.status(200).json({
@@ -27,6 +30,17 @@ export default async function handler(req, res) {
   }
 }
 
+function relevanceScore(item, query) {
+  const title = (item.title || '').toLowerCase().trim()
+  const q = query.toLowerCase().trim()
+  let score = 0
+  if (title === q) score += 1000
+  else if (title.startsWith(q)) score += 500
+  else if (title.includes(q)) score += 200
+  score += (item.popularity || 0) * 0.1
+  return score
+}
+
 function isLikelyAnime(item) {
   if (item.media_type !== 'tv') return false
   const genreIds = item.genre_ids || []
@@ -36,7 +50,7 @@ function isLikelyAnime(item) {
 
 async function searchTMDB(query) {
   const response = await fetch(
-    `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}`,
+    `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}&include_adult=false`,
     {
       headers: {
         Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
@@ -52,6 +66,7 @@ async function searchTMDB(query) {
 
   return data.results
     .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
+    .filter((item) => !item.adult)
     .filter((item) => !isLikelyAnime(item))
     .slice(0, 12)
     .map((item) => {
@@ -81,7 +96,7 @@ async function searchTMDB(query) {
 
 async function searchPerson(query) {
   const searchRes = await fetch(
-    `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}`,
+    `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}&include_adult=false`,
     {
       headers: {
         Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
@@ -162,7 +177,7 @@ async function searchPerson(query) {
 // fetches a given collection's full entry list separately via api/collection.js.
 async function searchCollection(query) {
   const searchRes = await fetch(
-    `https://api.themoviedb.org/3/search/collection?query=${encodeURIComponent(query)}`,
+    `https://api.themoviedb.org/3/search/collection?query=${encodeURIComponent(query)}&include_adult=false`,
     {
       headers: {
         Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
@@ -173,7 +188,7 @@ async function searchCollection(query) {
   if (!searchRes.ok) return []
 
   const searchData = await searchRes.json()
-  const candidates = searchData.results || []
+  const candidates = (searchData.results || []).filter((c) => !c.adult)
   if (candidates.length === 0) return []
 
   return candidates.slice(0, 4).map((c) => ({
