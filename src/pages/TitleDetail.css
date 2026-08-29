@@ -202,6 +202,8 @@
 }
 
 .td-notes-save-btn {
+  -webkit-appearance: none;
+  appearance: none;
   background: var(--amber);
   color: var(--charcoal);
   border: none;
@@ -213,6 +215,10 @@
 }
 
 .td-notes-save-btn:disabled {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--amber);
+  color: var(--charcoal);
   opacity: 0.4;
   cursor: default;
 }
