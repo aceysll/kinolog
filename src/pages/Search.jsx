@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { TitleCard } from '../components/TitleCard'
@@ -8,7 +8,11 @@ import { theme } from '../theme'
 import './Search.css'
 
 export default function Search() {
-  const [query, setQuery] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Seed from the URL so returning via browser back restores the same
+  // search instead of remounting blank, this component's state doesn't
+  // otherwise survive navigating away and back.
+  const [query, setQuery] = useState(searchParams.get('q') || '')
   const [results, setResults] = useState([])
   const [trending, setTrending] = useState([])
   const [loading, setLoading] = useState(false)
@@ -50,9 +54,13 @@ export default function Search() {
       setResults([])
       setPersonResult(null)
       setCollectionResults([])
+      setSearchParams({}, { replace: true })
       return
     }
-    const timeout = setTimeout(() => runSearch(query), 400)
+    const timeout = setTimeout(() => {
+      runSearch(query)
+      setSearchParams({ q: query }, { replace: true })
+    }, 400)
     return () => clearTimeout(timeout)
   }, [query])
 

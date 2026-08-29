@@ -7,6 +7,24 @@ import AddToListModal from '../components/AddToListModal'
 import { theme } from '../theme'
 import './Franchise.css'
 
+// Fills genres/director/cast/country/language/collection info after a movie is
+// inserted into watched_entries. Module-level so both the single "Add to..."
+// flow and the bulk "Add all to Watched" flow can call the same logic.
+async function fetchAndSaveTMDBDetails(entryId, tmdbId) {
+  try {
+    const res = await fetch(`/api/tmdb-details?media_type=movie&id=${tmdbId}`)
+    if (!res.ok) throw new Error('TMDB detail fetch failed')
+    const data = await res.json()
+    const { genres, director, cast_members, country, language, collection_id, collection_name } = data
+    await supabase
+      .from('watched_entries')
+      .update({ genres, director, cast_members, country, language, collection_id, collection_name })
+      .eq('id', entryId)
+  } catch (err) {
+    console.error('TMDB detail fetch failed:', err)
+  }
+}
+
 export default function Franchise() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -51,25 +69,6 @@ export default function Franchise() {
     }
   }
 
-  // Fills genres/director/cast/country/language after insert, same pattern as
-  // Search.jsx. collection_id/collection_name are already known here since
-  // we're on that exact franchise's page, but the shared endpoint returns
-  // them too, so this stays consistent with how every other add flow works.
-  async function fetchTMDBDetails(entryId, tmdbId) {
-    try {
-      const res = await fetch(`/api/tmdb-details?media_type=movie&id=${tmdbId}`)
-      if (!res.ok) throw new Error('TMDB detail fetch failed')
-      const data = await res.json()
-      const { genres, director, cast_members, country, language, collection_id, collection_name } = data
-      await supabase
-        .from('watched_entries')
-        .update({ genres, director, cast_members, country, language, collection_id, collection_name })
-        .eq('id', entryId)
-    } catch (err) {
-      console.error('TMDB detail fetch failed:', err)
-    }
-  }
-
   async function handleAddWatched(item) {
     const yearValue = Number(item.year)
     const insertData = {
@@ -96,7 +95,7 @@ export default function Franchise() {
     setWatchedKeys((prev) => new Set(prev).add(item.external_id))
 
     if (data && data.length > 0) {
-      fetchTMDBDetails(data[0].id, item.external_id)
+      fetchAndSaveTMDBDetails(data[0].id, item.external_id)
     }
   }
 
@@ -189,8 +188,7 @@ export default function Franchise() {
                     {user && !part.upcoming && (
                       <button
                         className={isWatched ? 'franchise-added-btn' : 'franchise-add-btn'}
-                        onClick={() => !isWatched && setAddItemTarget(part)}
-                        disabled={isWatched}
+                        onClick={() => setAddItemTarget(part)}
                       >
                         {isWatched ? 'Added' : 'Add to...'}
                       </button>
@@ -219,6 +217,13 @@ export default function Franchise() {
         <AddAllToListModal
           items={unwatchedParts}
           onClose={() => setShowAddAll(false)}
+          onWatchedAdded={(addedItems) => {
+            setWatchedKeys((prev) => {
+              const next = new Set(prev)
+              addedItems.forEach((item) => next.add(item.external_id))
+              return next
+            })
+          }}
         />
       )}
 
@@ -230,13 +235,14 @@ export default function Franchise() {
 // Phase 5: bulk list-picker, separate from AddToListModal by design since that
 // component is built around a single title. This handles N items in one insert
 // pass instead of extending the single-item modal to juggle arrays.
-function AddAllToListModal({ items, onClose }) {
+function AddAllToListModal({ items, onClose, onWatchedAdded }) {
   const [lists, setLists] = useState([])
   const [loading, setLoading] = useState(true)
   const [newListName, setNewListName] = useState('')
   const [creating, setCreating] = useState(false)
   const [adding, setAdding] = useState(false)
   const [addedToListId, setAddedToListId] = useState(null)
+  const [addedToWatched, setAddedToWatched] = useState(false)
 
   useEffect(() => {
     loadLists()
@@ -256,6 +262,50 @@ function AddAllToListModal({ items, onClose }) {
       .order('created_at', { ascending: false })
     if (!error) setLists(data || [])
     setLoading(false)
+  }
+
+  async function addAllToWatched() {
+    setAdding(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setAdding(false)
+      return
+    }
+
+    const rows = items.map((item) => {
+      const yearValue = Number(item.year)
+      return {
+        user_id: user.id,
+        media_type: 'movie',
+        source: 'tmdb',
+        external_id: item.external_id,
+        title: item.title,
+        poster_url: item.poster_url || null,
+        year: Number.isFinite(yearValue) ? yearValue : null,
+        watched_date: new Date().toISOString().slice(0, 10),
+      }
+    })
+
+    const { data, error } = await supabase
+      .from('watched_entries')
+      .insert(rows)
+      .select('id, external_id')
+
+    setAdding(false)
+
+    if (error) {
+      alert('Failed to add titles: ' + error.message)
+      return
+    }
+
+    setAddedToWatched(true)
+    if (onWatchedAdded) onWatchedAdded(items)
+
+    // Fill in genres/director/cast/collection info for each, same as the
+    // single-item flow, fired async so the modal doesn't wait on it
+    if (data) {
+      data.forEach((row) => fetchAndSaveTMDBDetails(row.id, row.external_id))
+    }
   }
 
   async function addAllToList(listId) {
@@ -313,11 +363,20 @@ function AddAllToListModal({ items, onClose }) {
 
         {loading ? (
           <div className="atl-loading">Loading...</div>
-        ) : addedToListId ? (
-          <div className="atl-loading">Added.</div>
         ) : (
           <>
             <div className="atl-list-items">
+              <button
+                className="atl-list-row atl-watched-row"
+                onClick={addAllToWatched}
+                disabled={adding || addedToWatched}
+                style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: addedToWatched ? 'default' : 'pointer' }}
+              >
+                <span>{addedToWatched ? 'Added to Watched' : 'Add all to Watched'}</span>
+              </button>
+
+              <div className="atl-divider" />
+
               {lists.length === 0 && (
                 <div className="atl-empty">No lists yet, create one below.</div>
               )}
@@ -329,7 +388,7 @@ function AddAllToListModal({ items, onClose }) {
                   disabled={adding}
                   style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
-                  <span>{list.name}</span>
+                  <span>{addedToListId === list.id ? `Added to ${list.name}` : list.name}</span>
                 </button>
               ))}
             </div>
