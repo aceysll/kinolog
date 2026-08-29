@@ -200,3 +200,32 @@
   color: var(--slate);
   margin: 0;
 }
+.franchise-add-btn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--amber);
+  background: none;
+  color: var(--amber);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.franchise-add-btn:hover {
+  background-color: rgba(217,164,65,0.1);
+}
+
+.franchise-added-btn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(242,239,233,0.15);
+  background: none;
+  color: var(--slate);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: default;
+}

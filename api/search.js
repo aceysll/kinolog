@@ -30,15 +30,17 @@ export default async function handler(req, res) {
   }
 }
 
+// Popularity dominates for big gaps (a blockbuster with a partial match should
+// still outrank an obscure film that happens to share the exact query text),
+// the tier bonus only nudges close calls toward the more relevant title.
 function relevanceScore(item, query) {
   const title = (item.title || '').toLowerCase().trim()
   const q = query.toLowerCase().trim()
-  let score = 0
-  if (title === q) score += 1000
-  else if (title.startsWith(q)) score += 500
-  else if (title.includes(q)) score += 200
-  score += (item.popularity || 0) * 0.1
-  return score
+  let tier = 0
+  if (title === q) tier = 50
+  else if (title.startsWith(q)) tier = 30
+  else if (title.includes(q)) tier = 15
+  return tier + (item.popularity || 0)
 }
 
 function isLikelyAnime(item) {
@@ -175,6 +177,11 @@ async function searchPerson(query) {
 // can legitimately match several distinct collections (Raimi trilogy,
 // MCU collection, Amazing Spider-Man duology, etc). The Franchise page
 // fetches a given collection's full entry list separately via api/collection.js.
+// Phase 5: franchise search via TMDB's collection endpoint. Returns the
+// top few matching collections, since a name like "spider-man" or "mcu"
+// can legitimately match several distinct collections (Raimi trilogy,
+// MCU collection, Amazing Spider-Man duology, etc). The Franchise page
+// fetches a given collection's full entry list separately via api/collection.js.
 async function searchCollection(query) {
   const searchRes = await fetch(
     `https://api.themoviedb.org/3/search/collection?query=${encodeURIComponent(query)}&include_adult=false`,
@@ -188,10 +195,35 @@ async function searchCollection(query) {
   if (!searchRes.ok) return []
 
   const searchData = await searchRes.json()
-  const candidates = (searchData.results || []).filter((c) => !c.adult)
-  if (candidates.length === 0) return []
+  // TMDB's collection search results carry no adult flag at all, that field only
+  // exists on movie/tv objects. Pull a wider pool, check each candidate's actual
+  // movies for the adult flag, drop anything unsafe, then keep the top 4 safe ones.
+  const rawCandidates = (searchData.results || []).slice(0, 8)
+  if (rawCandidates.length === 0) return []
 
-  return candidates.slice(0, 4).map((c) => ({
+  const details = await Promise.all(
+    rawCandidates.map((c) =>
+      fetch(`https://api.themoviedb.org/3/collection/${c.id}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_TOKEN}`,
+          Accept: 'application/json',
+        },
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null)
+    )
+  )
+
+  const safeCandidates = rawCandidates.filter((c, i) => {
+    const d = details[i]
+    if (!d) return false
+    const parts = d.parts || []
+    if (parts.length === 0) return false
+    if (parts.some((p) => p.adult)) return false
+    return true
+  })
+
+  return safeCandidates.slice(0, 4).map((c) => ({
     id: c.id,
     name: c.name,
     poster_url: c.poster_path ? `https://image.tmdb.org/t/p/w342${c.poster_path}` : null,

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { BottomNav } from '../components/BottomNav'
+import AddToListModal from '../components/AddToListModal'
 import { theme } from '../theme'
 import './Franchise.css'
 
@@ -16,6 +17,7 @@ export default function Franchise() {
   const [error, setError] = useState('')
   const [watchedKeys, setWatchedKeys] = useState(new Set())
   const [showAddAll, setShowAddAll] = useState(false)
+  const [addItemTarget, setAddItemTarget] = useState(null)
 
   useEffect(() => {
     loadCollection()
@@ -46,6 +48,55 @@ export default function Franchise() {
       .eq('source', 'tmdb')
     if (!error && data) {
       setWatchedKeys(new Set(data.map((row) => row.external_id)))
+    }
+  }
+
+  // Fills genres/director/cast/country/language after insert, same pattern as
+  // Search.jsx. collection_id/collection_name are already known here since
+  // we're on that exact franchise's page, but the shared endpoint returns
+  // them too, so this stays consistent with how every other add flow works.
+  async function fetchTMDBDetails(entryId, tmdbId) {
+    try {
+      const res = await fetch(`/api/tmdb-details?media_type=movie&id=${tmdbId}`)
+      if (!res.ok) throw new Error('TMDB detail fetch failed')
+      const data = await res.json()
+      const { genres, director, cast_members, country, language, collection_id, collection_name } = data
+      await supabase
+        .from('watched_entries')
+        .update({ genres, director, cast_members, country, language, collection_id, collection_name })
+        .eq('id', entryId)
+    } catch (err) {
+      console.error('TMDB detail fetch failed:', err)
+    }
+  }
+
+  async function handleAddWatched(item) {
+    const yearValue = Number(item.year)
+    const insertData = {
+      user_id: user.id,
+      media_type: 'movie',
+      source: 'tmdb',
+      external_id: item.external_id,
+      title: item.title,
+      poster_url: item.poster_url || null,
+      year: Number.isFinite(yearValue) ? yearValue : null,
+      watched_date: new Date().toISOString().slice(0, 10),
+    }
+
+    const { data, error } = await supabase
+      .from('watched_entries')
+      .insert(insertData)
+      .select('id')
+
+    if (error) {
+      console.error('Insert error:', error)
+      return
+    }
+
+    setWatchedKeys((prev) => new Set(prev).add(item.external_id))
+
+    if (data && data.length > 0) {
+      fetchTMDBDetails(data[0].id, item.external_id)
     }
   }
 
@@ -135,6 +186,15 @@ export default function Franchise() {
                     </div>
                     <p className="franchise-card-title">{part.title}</p>
                     <p className="franchise-card-year">{part.year || '—'}</p>
+                    {user && !part.upcoming && (
+                      <button
+                        className={isWatched ? 'franchise-added-btn' : 'franchise-add-btn'}
+                        onClick={() => !isWatched && setAddItemTarget(part)}
+                        disabled={isWatched}
+                      >
+                        {isWatched ? 'Added' : 'Add to...'}
+                      </button>
+                    )}
                   </div>
                 )
               })}
@@ -142,6 +202,18 @@ export default function Franchise() {
           </>
         )}
       </div>
+
+      {addItemTarget && (
+        <AddToListModal
+          title={{ ...addItemTarget, source: 'tmdb', media_type: 'movie' }}
+          added={watchedKeys.has(addItemTarget.external_id)}
+          onAddWatched={(item) => {
+            handleAddWatched(item)
+            setAddItemTarget(null)
+          }}
+          onClose={() => setAddItemTarget(null)}
+        />
+      )}
 
       {showAddAll && collection && (
         <AddAllToListModal
