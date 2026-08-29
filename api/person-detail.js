@@ -28,10 +28,18 @@ export default async function handler(req, res) {
     // dedupe by id (a person can appear in both cast and crew for the same
     // title), sort by popularity so "Top works also by X" surfaces the
     // things worth seeing rather than every minor credit.
+    // TMDB's popularity score for talk shows and news programs balloons from
+    // decades of daily episodes and constant guest turnover, it isn't a signal
+    // of how memorable the actual appearance was. Filter those genres out
+    // before ranking, otherwise Top Works fills up with Tonight Show/Daily
+    // Show credits instead of the person's actual films.
+    const TALK_NEWS_GENRES = new Set([10767, 10763])
+
     const seen = new Map()
     const allCredits = [...(credits.cast || []), ...(credits.crew || [])]
     for (const c of allCredits) {
       if (c.media_type !== 'movie' && c.media_type !== 'tv') continue
+      if (c.media_type === 'tv' && Array.isArray(c.genre_ids) && c.genre_ids.some((g) => TALK_NEWS_GENRES.has(g))) continue
       if (seen.has(c.id)) continue
       seen.set(c.id, {
         source: 'tmdb',
