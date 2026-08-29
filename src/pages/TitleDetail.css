@@ -1,0 +1,255 @@
+.td-page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--charcoal);
+  color: #fff;
+  font-family: var(--font-body);
+  padding-bottom: 80px;
+}
+
+.td-ambient-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420px;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+  filter: blur(2px);
+}
+
+.td-ambient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420px;
+  background: linear-gradient(180deg, transparent 0%, var(--charcoal) 95%);
+}
+
+.td-content {
+  position: relative;
+  z-index: 1;
+  padding: 24px 20px 0;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.td-back {
+  background: none;
+  border: none;
+  color: var(--slate);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 0;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.td-status,
+.td-error {
+  color: var(--slate);
+  padding: 40px 0;
+  text-align: center;
+}
+
+.td-error {
+  color: var(--velvetRed);
+}
+
+.td-header {
+  display: flex;
+  gap: 20px;
+}
+
+.td-poster,
+.td-poster-fallback {
+  width: 140px;
+  height: 210px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.td-poster-fallback {
+  background: var(--cardBg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate);
+  font-size: 12px;
+}
+
+.td-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.td-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate);
+  width: fit-content;
+}
+
+.td-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.td-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin: 2px 0 0;
+  line-height: 1.15;
+}
+
+.td-meta {
+  font-size: 13px;
+  color: var(--slate);
+  margin: 0;
+}
+
+.td-genres {
+  font-size: 13px;
+  color: var(--slate);
+  margin: 0;
+}
+
+.td-library-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.td-watched-pill {
+  background: var(--cardBg);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.td-rewatch-pill {
+  background: var(--cardBg);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--slate);
+}
+
+.td-rating {
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.td-add-btn {
+  margin-top: 8px;
+  background: var(--amber);
+  color: var(--charcoal);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.td-notes {
+  font-size: 13px;
+  color: var(--slate);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.td-section {
+  margin-top: 24px;
+}
+
+.td-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  margin: 0 0 10px;
+}
+
+.td-overview {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #e8e8e8;
+  margin: 0;
+}
+
+.td-franchise-link {
+  background: var(--cardBg);
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.td-person-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.td-person-photo,
+.td-person-photo-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.td-person-photo-fallback {
+  background: var(--cardBg);
+}
+
+.td-cast-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.td-cast-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.td-cast-item .td-person-photo,
+.td-cast-item .td-person-photo-fallback {
+  width: 64px;
+  height: 64px;
+}
+
+.td-cast-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.td-cast-character {
+  font-size: 11px;
+  color: var(--slate);
+}

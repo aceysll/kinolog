@@ -12,6 +12,7 @@ import Stats from './pages/Stats'
 import Lists from './pages/Lists'
 import ListDetail from './pages/ListDetail'
 import Franchise from './pages/Franchise'
+import TitleDetail from './pages/TitleDetail'
 
 export default function App() {
   return (
@@ -89,6 +90,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Franchise />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/title/:source/:mediaType/:externalId"
+            element={
+              <ProtectedRoute>
+                <TitleDetail />
               </ProtectedRoute>
             }
           />

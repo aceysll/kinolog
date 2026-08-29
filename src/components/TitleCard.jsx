@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { theme } from '../theme'
 import AddToListModal from './AddToListModal'
 import './TitleCard.css'
@@ -11,10 +12,15 @@ const BADGE_DOT = {
 
 export function TitleCard({ item, added, onAdd }) {
   const [showModal, setShowModal] = useState(false)
+  const navigate = useNavigate()
+
+  function openDetail() {
+    navigate(`/title/${item.source}/${item.media_type}/${item.external_id}`)
+  }
 
   return (
     <div className="tc-card">
-      <div className="tc-poster-wrap">
+      <div className="tc-poster-wrap" onClick={openDetail} style={{ cursor: 'pointer' }}>
         {item.poster_url ? (
           <img src={item.poster_url} alt={item.title} className="tc-poster" />
         ) : (
@@ -25,13 +31,16 @@ export function TitleCard({ item, added, onAdd }) {
           {item.media_type}
         </span>
       </div>
-      <p className="tc-title">{item.title}</p>
+      <p className="tc-title" onClick={openDetail} style={{ cursor: 'pointer' }}>{item.title}</p>
       <p className="tc-meta">{item.year || '—'}</p>
       {item.upcoming ? (
         <div className="tc-upcoming">Not released yet</div>
       ) : (
         <button
-          onClick={() => setShowModal(true)}
+          onClick={(e) => {
+            e.stopPropagation()
+            setShowModal(true)
+          }}
           className={added ? 'tc-added-button' : 'tc-add-button'}
         >
           {added ? 'Added' : 'Add to...'}
