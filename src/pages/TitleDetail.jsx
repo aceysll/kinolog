@@ -24,10 +24,18 @@ export default function TitleDetail() {
   const [error, setError] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
 
+  const [notesDraft, setNotesDraft] = useState('')
+  const [savingNotes, setSavingNotes] = useState(false)
+  const [notesSaved, setNotesSaved] = useState(false)
+
   useEffect(() => {
     loadTitleDetail()
     loadLibraryEntry()
   }, [source, mediaType, externalId])
+
+  useEffect(() => {
+    setNotesDraft(libraryEntry?.notes || '')
+  }, [libraryEntry?.id, libraryEntry?.notes])
 
   async function loadTitleDetail() {
     setLoading(true)
@@ -100,6 +108,27 @@ export default function TitleDetail() {
     setLibraryEntry(data)
   }
 
+  async function handleSaveNotes() {
+    if (!libraryEntry) return
+    setSavingNotes(true)
+    const trimmed = notesDraft.trim()
+    const { data, error } = await supabase
+      .from('watched_entries')
+      .update({ notes: trimmed ? trimmed : null })
+      .eq('id', libraryEntry.id)
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Notes save error:', error)
+    } else if (data) {
+      setLibraryEntry(data)
+      setNotesSaved(true)
+      setTimeout(() => setNotesSaved(false), 1500)
+    }
+    setSavingNotes(false)
+  }
+
   const rootVars = {
     '--charcoal': theme.colors.charcoal,
     '--cardBg': theme.colors.cardBg,
@@ -112,6 +141,8 @@ export default function TitleDetail() {
     '--font-body': theme.fonts.body,
     '--font-mono': theme.fonts.mono,
   }
+
+  const notesUnchanged = notesDraft === (libraryEntry?.notes || '')
 
   return (
     <div className="td-page" style={rootVars}>
@@ -178,8 +209,27 @@ export default function TitleDetail() {
                   )
                 )}
 
-                {libraryEntry?.notes && (
-                  <p className="td-notes">{libraryEntry.notes}</p>
+                {libraryEntry && (
+                  <div className="td-notes-block">
+                    <p className="td-section-label" style={{ marginBottom: 6 }}>Notes</p>
+                    <textarea
+                      className="td-notes-input"
+                      value={notesDraft}
+                      onChange={(e) => setNotesDraft(e.target.value)}
+                      placeholder="Add a note about this one..."
+                      rows={3}
+                    />
+                    <div className="td-notes-actions">
+                      <button
+                        className="td-notes-save-btn"
+                        onClick={handleSaveNotes}
+                        disabled={savingNotes || notesUnchanged}
+                      >
+                        {savingNotes ? 'Saving...' : 'Save'}
+                      </button>
+                      {notesSaved && <span className="td-notes-saved">Saved</span>}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
