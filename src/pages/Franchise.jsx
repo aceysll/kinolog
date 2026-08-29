@@ -156,7 +156,7 @@ export default function Franchise() {
                 <button
                   className="franchise-add-all-btn"
                   onClick={() => setShowAddAll(true)}
-                  disabled={unwatchedParts.length === 0}
+                  disabled={collection.parts.length === 0}
                 >
                   Add all to...
                 </button>
@@ -215,7 +215,8 @@ export default function Franchise() {
 
       {showAddAll && collection && (
         <AddAllToListModal
-          items={unwatchedParts}
+          items={collection.parts}
+          unwatchedItems={unwatchedParts}
           onClose={() => setShowAddAll(false)}
           onWatchedAdded={(addedItems) => {
             setWatchedKeys((prev) => {
@@ -235,7 +236,7 @@ export default function Franchise() {
 // Phase 5: bulk list-picker, separate from AddToListModal by design since that
 // component is built around a single title. This handles N items in one insert
 // pass instead of extending the single-item modal to juggle arrays.
-function AddAllToListModal({ items, onClose, onWatchedAdded }) {
+function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
   const [lists, setLists] = useState([])
   const [loading, setLoading] = useState(true)
   const [newListName, setNewListName] = useState('')
@@ -265,6 +266,7 @@ function AddAllToListModal({ items, onClose, onWatchedAdded }) {
   }
 
   async function addAllToWatched() {
+    if (unwatchedItems.length === 0) return
     setAdding(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -272,7 +274,7 @@ function AddAllToListModal({ items, onClose, onWatchedAdded }) {
       return
     }
 
-    const rows = items.map((item) => {
+    const rows = unwatchedItems.map((item) => {
       const yearValue = Number(item.year)
       return {
         user_id: user.id,
@@ -299,7 +301,7 @@ function AddAllToListModal({ items, onClose, onWatchedAdded }) {
     }
 
     setAddedToWatched(true)
-    if (onWatchedAdded) onWatchedAdded(items)
+    if (onWatchedAdded) onWatchedAdded(unwatchedItems)
 
     // Fill in genres/director/cast/collection info for each, same as the
     // single-item flow, fired async so the modal doesn't wait on it
@@ -369,10 +371,16 @@ function AddAllToListModal({ items, onClose, onWatchedAdded }) {
               <button
                 className="atl-list-row atl-watched-row"
                 onClick={addAllToWatched}
-                disabled={adding || addedToWatched}
-                style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: addedToWatched ? 'default' : 'pointer' }}
+                disabled={adding || addedToWatched || unwatchedItems.length === 0}
+                style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: (addedToWatched || unwatchedItems.length === 0) ? 'default' : 'pointer' }}
               >
-                <span>{addedToWatched ? 'Added to Watched' : 'Add all to Watched'}</span>
+                <span>
+                  {addedToWatched
+                    ? 'Added to Watched'
+                    : unwatchedItems.length === 0
+                    ? 'All watched'
+                    : `Add all to Watched (${unwatchedItems.length})`}
+                </span>
               </button>
 
               <div className="atl-divider" />
