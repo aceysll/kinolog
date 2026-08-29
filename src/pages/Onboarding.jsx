@@ -74,10 +74,10 @@ export default function Onboarding() {
       const res = await fetch(`/api/tmdb-details?media_type=${mediaType}&id=${tmdbId}`)
       if (!res.ok) throw new Error('TMDB detail fetch failed')
       const data = await res.json()
-      const { genres, director, cast_members, country, language } = data
+      const { genres, director, director_id, cast_members, cast_ids, country, language } = data
       await supabase
         .from('watched_entries')
-        .update({ genres, director, cast_members, country, language })
+        .update({ genres, director, director_id, cast_members, cast_ids, country, language })
         .eq('id', entryId)
     } catch (err) {
       console.error('TMDB detail fetch failed:', err)

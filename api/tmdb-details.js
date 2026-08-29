@@ -18,7 +18,9 @@ export default async function handler(req, res) {
 
     const genres = data.genres?.map((g) => g.name) || []
     let director = null
+    let directorId = null
     let castMembers = []
+    let castIds = []
     let country = null
     const language = data.original_language || null
     let collectionId = null
@@ -28,8 +30,10 @@ export default async function handler(req, res) {
       const crew = data.credits?.crew || []
       const dir = crew.find((c) => c.job === 'Director')
       director = dir?.name || null
+      directorId = dir?.id || null
       const sortedCast = (data.credits?.cast || []).sort((a, b) => a.order - b.order)
       castMembers = sortedCast.slice(0, 5).map((c) => c.name)
+      castIds = sortedCast.slice(0, 5).map((c) => c.id)
       country = data.production_countries?.[0]?.iso_3166_1 || null
 
       // Phase 5: belongs_to_collection only exists on the movie details endpoint,
@@ -39,16 +43,23 @@ export default async function handler(req, res) {
         collectionName = data.belongs_to_collection.name
       }
     } else if (media_type === 'tv') {
-      director = data.created_by?.[0]?.name || null
+      // TMDB's created_by entries carry the person id directly, same shape
+      // as a crew credit for our purposes.
+      const creator = data.created_by?.[0] || null
+      director = creator?.name || null
+      directorId = creator?.id || null
       const sortedCast = (data.credits?.cast || []).sort((a, b) => a.order - b.order)
       castMembers = sortedCast.slice(0, 5).map((c) => c.name)
+      castIds = sortedCast.slice(0, 5).map((c) => c.id)
       country = data.origin_country?.[0] || null
     }
 
     return res.status(200).json({
       genres,
       director,
+      director_id: directorId,
       cast_members: castMembers,
+      cast_ids: castIds,
       country,
       language,
       collection_id: collectionId,

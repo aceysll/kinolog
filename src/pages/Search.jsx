@@ -92,13 +92,15 @@ export default function Search() {
       const res = await fetch(`/api/tmdb-details?media_type=${mediaType}&id=${tmdbId}`)
       if (!res.ok) throw new Error('TMDB detail fetch failed')
       const data = await res.json()
-      const { genres, director, cast_members, country, language, collection_id, collection_name } = data
+      const { genres, director, director_id, cast_members, cast_ids, country, language, collection_id, collection_name } = data
       await supabase
         .from('watched_entries')
         .update({
           genres,
           director,
+          director_id,
           cast_members,
+          cast_ids,
           country,
           language,
           collection_id,
