@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
@@ -15,9 +15,13 @@ export default function Search() {
   const [error, setError] = useState('')
   const [addedIds, setAddedIds] = useState(new Set())
   const [personResult, setPersonResult] = useState(null)
-  const [collectionResult, setCollectionResult] = useState(null)
+  const [collectionResults, setCollectionResults] = useState([])
   const { user } = useAuth()
   const navigate = useNavigate()
+  // Race condition guard: if the user types fast, a slower earlier request
+  // can resolve after a newer one and overwrite it with stale results.
+  // Track which request is current, ignore anything that isn't.
+  const latestRequestId = useRef(0)
 
   useEffect(() => {
     fetch('/api/trending')
@@ -45,7 +49,7 @@ export default function Search() {
     if (!query.trim()) {
       setResults([])
       setPersonResult(null)
-      setCollectionResult(null)
+      setCollectionResults([])
       return
     }
     const timeout = setTimeout(() => runSearch(query), 400)
@@ -53,19 +57,23 @@ export default function Search() {
   }, [query])
 
   async function runSearch(q) {
+    const requestId = ++latestRequestId.current
     setLoading(true)
     setError('')
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Search failed')
+      // Ignore this response if a newer search has since been fired
+      if (requestId !== latestRequestId.current) return
       setResults(data.results)
       setPersonResult(data.person || null)
-      setCollectionResult(data.collection || null)
+      setCollectionResults(data.collections || [])
     } catch (err) {
+      if (requestId !== latestRequestId.current) return
       setError(err.message)
     } finally {
-      setLoading(false)
+      if (requestId === latestRequestId.current) setLoading(false)
     }
   }
 
@@ -192,22 +200,27 @@ export default function Search() {
         {loading && <p className="search-status">Searching...</p>}
         {error && <p className="search-error">{error}</p>}
 
-        {collectionResult && (
-          <div
-            className="search-collection-banner"
-            onClick={() => navigate(`/franchise/${collectionResult.id}`)}
-          >
-            {collectionResult.poster_url && (
-              <img
-                src={collectionResult.poster_url}
-                alt={collectionResult.name}
-                className="search-collection-poster"
-              />
-            )}
-            <div className="search-collection-info">
-              <p className="search-collection-eyebrow">Franchise</p>
-              <p className="search-collection-name">{collectionResult.name}</p>
-            </div>
+        {collectionResults.length > 0 && (
+          <div className="search-collection-list">
+            {collectionResults.map((c) => (
+              <div
+                key={c.id}
+                className="search-collection-banner"
+                onClick={() => navigate(`/franchise/${c.id}`)}
+              >
+                {c.poster_url && (
+                  <img
+                    src={c.poster_url}
+                    alt={c.name}
+                    className="search-collection-poster"
+                  />
+                )}
+                <div className="search-collection-info">
+                  <p className="search-collection-eyebrow">Franchise</p>
+                  <p className="search-collection-name">{c.name}</p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

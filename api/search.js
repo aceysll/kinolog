@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [tmdbResults, anilistResults, personResult, collectionResult] = await Promise.all([
+    const [tmdbResults, anilistResults, personResult, collectionResults] = await Promise.all([
       searchTMDB(q),
       searchAniList(q),
       searchPerson(q),
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       results: merged,
       person: personResult,
-      collection: collectionResult,
+      collections: collectionResults,
     })
   } catch (err) {
     res.status(500).json({ error: 'Search failed', details: err.message })
@@ -156,8 +156,10 @@ async function searchPerson(query) {
 }
 
 // Phase 5: franchise search via TMDB's collection endpoint. Returns the
-// single best-matching collection, the Franchise page fetches its full
-// entry list separately via api/collection.js.
+// top few matching collections, since a name like "spider-man" or "mcu"
+// can legitimately match several distinct collections (Raimi trilogy,
+// MCU collection, Amazing Spider-Man duology, etc). The Franchise page
+// fetches a given collection's full entry list separately via api/collection.js.
 async function searchCollection(query) {
   const searchRes = await fetch(
     `https://api.themoviedb.org/3/search/collection?query=${encodeURIComponent(query)}`,
@@ -168,20 +170,18 @@ async function searchCollection(query) {
       },
     }
   )
-  if (!searchRes.ok) return null
+  if (!searchRes.ok) return []
 
   const searchData = await searchRes.json()
   const candidates = searchData.results || []
-  if (candidates.length === 0) return null
+  if (candidates.length === 0) return []
 
-  const top = candidates[0]
-
-  return {
-    id: top.id,
-    name: top.name,
-    poster_url: top.poster_path ? `https://image.tmdb.org/t/p/w342${top.poster_path}` : null,
-    backdrop_url: top.backdrop_path ? `https://image.tmdb.org/t/p/w1280${top.backdrop_path}` : null,
-  }
+  return candidates.slice(0, 4).map((c) => ({
+    id: c.id,
+    name: c.name,
+    poster_url: c.poster_path ? `https://image.tmdb.org/t/p/w342${c.poster_path}` : null,
+    backdrop_url: c.backdrop_path ? `https://image.tmdb.org/t/p/w1280${c.backdrop_path}` : null,
+  }))
 }
 
 async function searchAniList(query) {

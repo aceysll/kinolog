@@ -198,3 +198,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.search-collection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-collection-list .search-collection-banner {
+  margin-bottom: 0;
+}
