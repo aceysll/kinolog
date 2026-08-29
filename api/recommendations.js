@@ -37,9 +37,9 @@ export default async function handler(req, res) {
 async function generateRecommendations({ genres, directors, excludeTitles }) {
   const genreList = genres.map(([name, count]) => `${name} (${count})`).join(', ')
   const directorList = directors.map(([name, count]) => `${name} (${count})`).join(', ')
-  const excludeList = excludeTitles.slice(0, 40).join(', ')
+  const excludeList = excludeTitles.slice(0, 150).join(', ')
 
-  const prompt = `Based on this person's watch history, suggest 15 real movies they would likely enjoy but have not seen.
+  const prompt = `Based on this person's watch history, suggest 30 real movies they would likely enjoy but have not seen. This person has a large watch history, so favor less obvious picks over the most famous blockbuster in each genre, since they have probably already seen the most famous ones.
 
 Top genres they watch (with counts): ${genreList || 'none recorded'}
 Directors they watch often: ${directorList || 'none recorded'}

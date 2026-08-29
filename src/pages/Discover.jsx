@@ -9,6 +9,7 @@ import './Discover.css'
 
 export default function Discover() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState('franchises')
   const [query, setQuery] = useState(searchParams.get('q') || '')
   const [gallery, setGallery] = useState([])
   const [galleryLoading, setGalleryLoading] = useState(true)
@@ -213,14 +214,82 @@ export default function Discover() {
   return (
     <div className="discover-page" style={rootVars}>
       <div className="discover-content">
-        <p className="discover-eyebrow">Franchises</p>
-        <h1 className="discover-title">{showingSearch ? 'Results' : 'Discover'}</h1>
+        <p className="discover-eyebrow">Discover</p>
+        <h1 className="discover-title">
+          {activeTab === 'franchises' ? (showingSearch ? 'Results' : 'Franchises') : 'For You'}
+        </h1>
 
         <div className="sprocket-divider" />
 
-        {!showingSearch && (
+        <div className="discover-tabs">
+          <button
+            type="button"
+            className={`discover-tab${activeTab === 'franchises' ? ' active' : ''}`}
+            onClick={() => setActiveTab('franchises')}
+          >
+            Franchises
+          </button>
+          <button
+            type="button"
+            className={`discover-tab${activeTab === 'foryou' ? ' active' : ''}`}
+            onClick={() => setActiveTab('foryou')}
+          >
+            For You
+          </button>
+        </div>
+
+        {activeTab === 'franchises' && (
+          <>
+            <div className="discover-input-wrap">
+              <input
+                type="text"
+                placeholder="Search any franchise..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="discover-input"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className="discover-input-clear"
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            {isLoading && <p className="discover-status">Loading...</p>}
+            {error && <p className="discover-error">{error}</p>}
+
+            {!isLoading && displayItems.length === 0 && (
+              <p className="discover-empty-note">
+                {showingSearch ? 'No franchises found.' : 'Nothing to show yet.'}
+              </p>
+            )}
+
+            <div className="discover-gallery">
+              {displayItems.map((c) => (
+                <div
+                  key={c.id}
+                  className="discover-gallery-item"
+                  onClick={() => navigate(`/franchise/${c.id}`)}
+                >
+                  {c.poster_url ? (
+                    <img src={c.poster_url} alt={c.name} className="discover-gallery-poster" />
+                  ) : (
+                    <div className="discover-gallery-poster-fallback" />
+                  )}
+                  <p className="discover-gallery-name">{c.name}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {activeTab === 'foryou' && (
           <div className="discover-rec-section">
-            <p className="discover-section-label">Recommended For You</p>
             {recLoading && <p className="discover-status">Finding picks for you...</p>}
             {!recLoading && recTried && recommendations.length === 0 && (
               <p className="discover-empty-note">
@@ -242,55 +311,8 @@ export default function Discover() {
                 })}
               </div>
             )}
-            <div className="sprocket-divider" />
           </div>
         )}
-
-        <div className="discover-input-wrap">
-          <input
-            type="text"
-            placeholder="Search any franchise..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="discover-input"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery('')}
-              className="discover-input-clear"
-              aria-label="Clear search"
-            >
-              ×
-            </button>
-          )}
-        </div>
-
-        {isLoading && <p className="discover-status">Loading...</p>}
-        {error && <p className="discover-error">{error}</p>}
-
-        {!isLoading && displayItems.length === 0 && (
-          <p className="discover-empty-note">
-            {showingSearch ? 'No franchises found.' : 'Nothing to show yet.'}
-          </p>
-        )}
-
-        <div className="discover-gallery">
-          {displayItems.map((c) => (
-            <div
-              key={c.id}
-              className="discover-gallery-item"
-              onClick={() => navigate(`/franchise/${c.id}`)}
-            >
-              {c.poster_url ? (
-                <img src={c.poster_url} alt={c.name} className="discover-gallery-poster" />
-              ) : (
-                <div className="discover-gallery-poster-fallback" />
-              )}
-              <p className="discover-gallery-name">{c.name}</p>
-            </div>
-          ))}
-        </div>
       </div>
 
       <BottomNav />

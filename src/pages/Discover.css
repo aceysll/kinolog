@@ -27,16 +27,34 @@
   margin: 0;
 }
 
-.discover-rec-section {
-  margin-bottom: 8px;
+.discover-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
 }
 
-.discover-section-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--amber);
-  margin: 0 0 12px;
+.discover-tab {
+  flex: 1;
+  background: var(--cardBg);
+  border: 1px solid rgba(242,239,233,0.06);
+  border-radius: 20px;
+  color: var(--slate);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 9px 0;
+  cursor: pointer;
+}
+
+.discover-tab.active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--charcoal);
+}
+
+.discover-rec-section {
+  margin-bottom: 8px;
 }
 
 .discover-rec-grid {
