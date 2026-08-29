@@ -166,7 +166,11 @@ export default function ListDetail() {
         <div className="listdetail-grid">
           {items.map((item) => (
             <div key={item.id} className="listdetail-card">
-              <div className="listdetail-poster-wrap">
+              <div
+                className="listdetail-poster-wrap"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/title/${item.source}/${item.media_type}/${item.external_id}`)}
+              >
                 {item.poster_path ? (
                   <img src={item.poster_path} alt={item.title} className="listdetail-poster" />
                 ) : (
@@ -180,7 +184,13 @@ export default function ListDetail() {
                   {item.media_type}
                 </span>
               </div>
-              <p className="listdetail-card-title">{item.title}</p>
+              <p
+                className="listdetail-card-title"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/title/${item.source}/${item.media_type}/${item.external_id}`)}
+              >
+                {item.title}
+              </p>
               <p className="listdetail-card-year">{item.year || '—'}</p>
               <button onClick={() => handleRemoveItem(item.id)} className="listdetail-remove-btn">
                 Remove

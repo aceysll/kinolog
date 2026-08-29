@@ -152,7 +152,11 @@ export default function Watched() {
         <div className="watched-list">
           {sorted.map((entry) => (
             <div key={entry.id} className="watched-row">
-              <div className="watched-poster-wrap">
+              <div
+                className="watched-poster-wrap"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/title/${entry.source}/${entry.media_type}/${entry.external_id}`)}
+              >
                 {entry.poster_url ? (
                   <img src={entry.poster_url} alt={entry.title} className="watched-poster" />
                 ) : (
@@ -168,7 +172,13 @@ export default function Watched() {
               </div>
 
               <div className="watched-row-info">
-                <p className="watched-row-title">{entry.title}</p>
+                <p
+                  className="watched-row-title"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate(`/title/${entry.source}/${entry.media_type}/${entry.external_id}`)}
+                >
+                  {entry.title}
+                </p>
                 <p className="watched-row-date">{entry.watched_date}</p>
                 {entry.collection_id && (
                   <button

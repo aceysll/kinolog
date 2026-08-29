@@ -166,6 +166,9 @@ export default function TitleDetail() {
                       <span className="td-rating">★ {libraryEntry.rating}/10</span>
                     )}
                     {libraryEntry.rewatched && <span className="td-rewatch-pill">Rewatched</span>}
+                    <button className="td-edit-lists-btn" onClick={() => setShowAddModal(true)}>
+                      Add to lists...
+                    </button>
                   </div>
                 ) : (
                   user && (
