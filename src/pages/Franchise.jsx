@@ -241,9 +241,13 @@ function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
   const [loading, setLoading] = useState(true)
   const [newListName, setNewListName] = useState('')
   const [creating, setCreating] = useState(false)
-  const [adding, setAdding] = useState(false)
-  const [addedToListId, setAddedToListId] = useState(null)
   const [addedToWatched, setAddedToWatched] = useState(false)
+  const [addingToWatched, setAddingToWatched] = useState(false)
+  // Set of list ids where every item in this franchise is already a member.
+  // Toggling a checked list off does a real bulk removal, toggling an
+  // unchecked one on fills in only whichever items aren't already there.
+  const [memberListIds, setMemberListIds] = useState(new Set())
+  const [togglingListId, setTogglingListId] = useState(null)
 
   useEffect(() => {
     loadLists()
@@ -256,21 +260,111 @@ function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
       setLoading(false)
       return
     }
-    const { data, error } = await supabase
+
+    const { data: userLists, error: listsError } = await supabase
       .from('lists')
       .select('id, name')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-    if (!error) setLists(data || [])
+
+    if (listsError) {
+      alert('Failed to load lists: ' + listsError.message)
+      setLoading(false)
+      return
+    }
+
+    const externalIds = items.map((i) => i.external_id)
+    const { data: existingItems, error: itemsError } = await supabase
+      .from('list_items')
+      .select('list_id, external_id')
+      .eq('source', 'tmdb')
+      .in('external_id', externalIds)
+
+    if (itemsError) {
+      alert('Failed to load list membership: ' + itemsError.message)
+    }
+
+    // A list only counts as "member" if it already contains every item,
+    // partial overlap is left unchecked since checking it would be misleading.
+    const countByList = {}
+    ;(existingItems || []).forEach((row) => {
+      countByList[row.list_id] = (countByList[row.list_id] || 0) + 1
+    })
+    const fullMembers = new Set(
+      Object.entries(countByList)
+        .filter(([, count]) => count === items.length)
+        .map(([listId]) => listId)
+    )
+
+    setLists(userLists || [])
+    setMemberListIds(fullMembers)
     setLoading(false)
+  }
+
+  async function toggleList(list) {
+    setTogglingListId(list.id)
+    const isMember = memberListIds.has(list.id)
+
+    if (isMember) {
+      const { error } = await supabase
+        .from('list_items')
+        .delete()
+        .eq('list_id', list.id)
+        .eq('source', 'tmdb')
+        .in('external_id', items.map((i) => i.external_id))
+
+      setTogglingListId(null)
+      if (error) {
+        alert('Failed to remove from list: ' + error.message)
+        return
+      }
+      const next = new Set(memberListIds)
+      next.delete(list.id)
+      setMemberListIds(next)
+    } else {
+      // Only insert items not already in this list, avoids duplicate rows
+      // if membership was partial.
+      const { data: existing } = await supabase
+        .from('list_items')
+        .select('external_id')
+        .eq('list_id', list.id)
+        .eq('source', 'tmdb')
+        .in('external_id', items.map((i) => i.external_id))
+
+      const existingIds = new Set((existing || []).map((r) => r.external_id))
+      const toInsert = items.filter((i) => !existingIds.has(i.external_id))
+
+      const rows = toInsert.map((item) => ({
+        list_id: list.id,
+        source: item.source,
+        external_id: item.external_id,
+        media_type: item.media_type,
+        title: item.title,
+        poster_path: item.poster_url || null,
+        year: item.year || null,
+      }))
+
+      const { error } = rows.length > 0
+        ? await supabase.from('list_items').insert(rows)
+        : { error: null }
+
+      setTogglingListId(null)
+      if (error) {
+        alert('Failed to add to list: ' + error.message)
+        return
+      }
+      const next = new Set(memberListIds)
+      next.add(list.id)
+      setMemberListIds(next)
+    }
   }
 
   async function addAllToWatched() {
     if (unwatchedItems.length === 0) return
-    setAdding(true)
+    setAddingToWatched(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      setAdding(false)
+      setAddingToWatched(false)
       return
     }
 
@@ -293,7 +387,7 @@ function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
       .insert(rows)
       .select('id, external_id')
 
-    setAdding(false)
+    setAddingToWatched(false)
 
     if (error) {
       alert('Failed to add titles: ' + error.message)
@@ -303,33 +397,9 @@ function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
     setAddedToWatched(true)
     if (onWatchedAdded) onWatchedAdded(unwatchedItems)
 
-    // Fill in genres/director/cast/collection info for each, same as the
-    // single-item flow, fired async so the modal doesn't wait on it
     if (data) {
       data.forEach((row) => fetchAndSaveTMDBDetails(row.id, row.external_id))
     }
-  }
-
-  async function addAllToList(listId) {
-    setAdding(true)
-    const rows = items.map((item) => ({
-      list_id: listId,
-      source: item.source,
-      external_id: item.external_id,
-      media_type: item.media_type,
-      title: item.title,
-      poster_path: item.poster_url || null,
-      year: item.year || null,
-    }))
-
-    const { error } = await supabase.from('list_items').insert(rows)
-    setAdding(false)
-
-    if (error) {
-      alert('Failed to add titles: ' + error.message)
-      return
-    }
-    setAddedToListId(listId)
   }
 
   async function createList() {
@@ -368,20 +438,19 @@ function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
         ) : (
           <>
             <div className="atl-list-items">
-              <button
-                className="atl-list-row atl-watched-row"
-                onClick={addAllToWatched}
-                disabled={adding || addedToWatched || unwatchedItems.length === 0}
-                style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: (addedToWatched || unwatchedItems.length === 0) ? 'default' : 'pointer' }}
-              >
+              <label className="atl-list-row atl-watched-row">
+                <input
+                  type="checkbox"
+                  checked={addedToWatched || unwatchedItems.length === 0}
+                  disabled={addingToWatched || addedToWatched || unwatchedItems.length === 0}
+                  onChange={addAllToWatched}
+                />
                 <span>
-                  {addedToWatched
-                    ? 'Added to Watched'
-                    : unwatchedItems.length === 0
+                  {addedToWatched || unwatchedItems.length === 0
                     ? 'All watched'
                     : `Add all to Watched (${unwatchedItems.length})`}
                 </span>
-              </button>
+              </label>
 
               <div className="atl-divider" />
 
@@ -389,15 +458,15 @@ function AddAllToListModal({ items, unwatchedItems, onClose, onWatchedAdded }) {
                 <div className="atl-empty">No lists yet, create one below.</div>
               )}
               {lists.map((list) => (
-                <button
-                  key={list.id}
-                  className="atl-list-row"
-                  onClick={() => addAllToList(list.id)}
-                  disabled={adding}
-                  style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  <span>{addedToListId === list.id ? `Added to ${list.name}` : list.name}</span>
-                </button>
+                <label key={list.id} className="atl-list-row">
+                  <input
+                    type="checkbox"
+                    checked={memberListIds.has(list.id)}
+                    disabled={togglingListId === list.id}
+                    onChange={() => toggleList(list)}
+                  />
+                  <span>{list.name}</span>
+                </label>
               ))}
             </div>
 

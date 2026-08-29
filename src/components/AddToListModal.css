@@ -140,3 +140,7 @@
   letter-spacing: 0.3px;
   cursor: pointer;
 }
+.atl-done-button {
+  background-color: var(--amber);
+  color: var(--charcoal);
+}
