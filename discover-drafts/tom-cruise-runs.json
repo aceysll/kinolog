@@ -1,0 +1,202 @@
+{
+  "theme_prompt": "movies where Tom Cruise runs a lot",
+  "slug": "tom-cruise-runs",
+  "generated_at": "2026-08-29T20:10:02.132Z",
+  "items": [
+    {
+      "candidate_title": "Top Gun",
+      "candidate_year": 1986,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "744",
+        "media_type": "movie",
+        "title": "Top Gun",
+        "year": 1986,
+        "poster_url": "https://image.tmdb.org/t/p/w342/xUuHj3CgmZQ9P2cMaqQs4J0d4Zc.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/dBgxEkWe17R0AJDAvAhpeVELQx2.jpg"
+      }
+    },
+    {
+      "candidate_title": "Mission: Impossible",
+      "candidate_year": 1996,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "954",
+        "media_type": "movie",
+        "title": "Mission: Impossible",
+        "year": 1996,
+        "poster_url": "https://image.tmdb.org/t/p/w342/l5uxY5m5OInWpcExIpKG6AR3rgL.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/sra8XnL96OyLHENcglmZJg6HA8z.jpg"
+      }
+    },
+    {
+      "candidate_title": "Mission: Impossible 2",
+      "candidate_year": 2000,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "955",
+        "media_type": "movie",
+        "title": "Mission: Impossible II",
+        "year": 2000,
+        "poster_url": "https://image.tmdb.org/t/p/w342/hfnrual76gPeNFduhD4xzHWpfTw.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/24DZfupDlhXeTchmcOkoGRhP5Vg.jpg"
+      }
+    },
+    {
+      "candidate_title": "Mission: Impossible III",
+      "candidate_year": 2006,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "956",
+        "media_type": "movie",
+        "title": "Mission: Impossible III",
+        "year": 2006,
+        "poster_url": "https://image.tmdb.org/t/p/w342/vKGYCpmQyV9uHybWDzXuII8Los5.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/bYKeB9uUcPmvikjouEEQ86uvPw9.jpg"
+      }
+    },
+    {
+      "candidate_title": "Mission: Impossible – Ghost Protocol",
+      "candidate_year": 2011,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "56292",
+        "media_type": "movie",
+        "title": "Mission: Impossible - Ghost Protocol",
+        "year": 2011,
+        "poster_url": "https://image.tmdb.org/t/p/w342/eRZTGx7GsiKqPch96k27LK005ZL.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/ih4lZkUpmSE7AP3maymiO72xJ1z.jpg"
+      }
+    },
+    {
+      "candidate_title": "Mission: Impossible – Rogue Nation",
+      "candidate_year": 2015,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "177677",
+        "media_type": "movie",
+        "title": "Mission: Impossible - Rogue Nation",
+        "year": 2015,
+        "poster_url": "https://image.tmdb.org/t/p/w342/fRJLXQBHK2wyznK5yZbO7vmsuVK.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/vYIUN5rrCncHFY8WvcuXQlM4hk5.jpg"
+      }
+    },
+    {
+      "candidate_title": "Mission: Impossible – Fallout",
+      "candidate_year": 2018,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "353081",
+        "media_type": "movie",
+        "title": "Mission: Impossible - Fallout",
+        "year": 2018,
+        "poster_url": "https://image.tmdb.org/t/p/w342/AkJQpZp9WoNdj7pLYSj1L0RcMMN.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/3IzR3VhZAyhxVnuRRUHFLkfK4hT.jpg"
+      }
+    },
+    {
+      "candidate_title": "Edge of Tomorrow",
+      "candidate_year": 2014,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "137113",
+        "media_type": "movie",
+        "title": "Edge of Tomorrow",
+        "year": 2014,
+        "poster_url": "https://image.tmdb.org/t/p/w342/nBM9MMa2WCwvMG4IJ3eiGUdbPe6.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/4V1yIoAKPMRQwGBaSses8Bp2nsi.jpg"
+      }
+    },
+    {
+      "candidate_title": "War of the Worlds",
+      "candidate_year": 2005,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "74",
+        "media_type": "movie",
+        "title": "War of the Worlds",
+        "year": 2005,
+        "poster_url": "https://image.tmdb.org/t/p/w342/6Biy7R9LfumYshur3YKhpj56MpB.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/bInicBgSHfQiWLbnRT5jxw9Grvm.jpg"
+      }
+    },
+    {
+      "candidate_title": "Minority Report",
+      "candidate_year": 2002,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "180",
+        "media_type": "movie",
+        "title": "Minority Report",
+        "year": 2002,
+        "poster_url": "https://image.tmdb.org/t/p/w342/qtgFcnwh9dAFLocsDk2ySDVS8UF.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/PrMb3oeEluauy0q9ZO5xL33A6C.jpg"
+      }
+    },
+    {
+      "candidate_title": "The Last Samurai",
+      "candidate_year": 2003,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "616",
+        "media_type": "movie",
+        "title": "The Last Samurai",
+        "year": 2003,
+        "poster_url": "https://image.tmdb.org/t/p/w342/a8jmJPs5eZBARmnuEEvZwbjwyz4.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/z354BaTVzKj7E60WLzDoSmUuO4u.jpg"
+      }
+    },
+    {
+      "candidate_title": "Collateral",
+      "candidate_year": 2004,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "1538",
+        "media_type": "movie",
+        "title": "Collateral",
+        "year": 2004,
+        "poster_url": "https://image.tmdb.org/t/p/w342/nV5316WUsVij8sVXLCF1g7TFitg.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/qVzmXKKOTtd3szkiCheCNrfa394.jpg"
+      }
+    },
+    {
+      "candidate_title": "Jack Reacher",
+      "candidate_year": 2012,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "75780",
+        "media_type": "movie",
+        "title": "Jack Reacher",
+        "year": 2012,
+        "poster_url": "https://image.tmdb.org/t/p/w342/uQBbjrLVsUibWxNDGA4Czzo8lwz.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/iwvP8XVpYVmJ3xfF9xdBi5uAOWl.jpg"
+      }
+    },
+    {
+      "candidate_title": "Jack Reacher: Never Go Back",
+      "candidate_year": 2016,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "343611",
+        "media_type": "movie",
+        "title": "Jack Reacher: Never Go Back",
+        "year": 2016,
+        "poster_url": "https://image.tmdb.org/t/p/w342/cOg3UT2NYWHZxp41vpxAnVCOC4M.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/ww1eIoywghjoMzRLRIcbJLuKnJH.jpg"
+      }
+    },
+    {
+      "candidate_title": "The Firm",
+      "candidate_year": 1993,
+      "resolved": {
+        "source": "tmdb",
+        "external_id": "37233",
+        "media_type": "movie",
+        "title": "The Firm",
+        "year": 1993,
+        "poster_url": "https://image.tmdb.org/t/p/w342/kFexXCzidkm4LwlgZqxsJsDQB5v.jpg",
+        "backdrop_url": "https://image.tmdb.org/t/p/w1280/jlUTfePS1XRyMpgZvjFvDk7yEi0.jpg"
+      }
+    }
+  ]
+}

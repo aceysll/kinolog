@@ -27,6 +27,25 @@
   margin: 0;
 }
 
+.discover-rec-section {
+  margin-bottom: 8px;
+}
+
+.discover-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  margin: 0 0 12px;
+}
+
+.discover-rec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding-bottom: 10px;
+}
+
 .discover-input-wrap {
   position: relative;
   margin-bottom: 18px;
