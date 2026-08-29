@@ -5,6 +5,7 @@
   color: #fff;
   font-family: var(--font-body);
   padding-bottom: 80px;
+  color-scheme: dark;
 }
 
 .td-ambient-backdrop {
@@ -185,6 +186,7 @@
   padding: 10px 12px;
   resize: vertical;
   box-sizing: border-box;
+  color-scheme: dark;
 }
 
 .td-notes-input:focus {
